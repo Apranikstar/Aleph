@@ -8,7 +8,7 @@ processList = {
 
 outputDir = "./output"
 #outputDir = "/eos/user/h/hfatehi/JetTagger/TESTPIPELINE"
-inputDir = "/afs/cern.ch/user/h/hfatehi/"
+inputDir = "/eos/experiment/aleph/EDM4HEP/MC/1994"
 #inputDir =/eos/experiment/aleph/EDM4HEP/DATA/1994_old/LAST #DATA1994old
 nCPUS = -1
 
