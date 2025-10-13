@@ -1,22 +1,15 @@
 
 
 processList = {
-#    "mgp8_pp_bb_PTmin_5000_5f_84TeV": {"fraction": 0.001},
-#     "mgp8_pp_cc_PTmin_5000_5f_84TeV": {"fraction": 0.001},
-#      "mgp8_pp_gg_PTmin_5000_5f_84TeV": {"fraction": 0.001},
-#       "mgp8_pp_thadthad_PTmin_5000_5f_84TeV": {"fraction": 0.001},
-#        "mgp8_pp_tleptlep_PTmin_5000_5f_84TeV": {"fraction": 0.001},
-#         "mgp8_pp_uuddss_PTmin_5000_5f_84TeV": {"fraction": 0.001},
-#          "mgp8_pp_whadwhad_PTmin_5000_5f_84TeV": {"fraction": 0.001},
-#           "mgp8_pp_zhadzhad_PTmin_5000_5f_84TeV": {"fraction": 0.001},
+
 "QQB" : {"fraction" : 1},           
 }
 
 
 outputDir = "./output"
 #outputDir = "/eos/user/h/hfatehi/JetTagger/TESTPIPELINE"
-#inputDir = "/eos/experiment/fcc/hh/generation/DelphesEvents/fcc_v07/II_trackCov"
 inputDir = "/afs/cern.ch/user/h/hfatehi/"
+#inputDir =/eos/experiment/aleph/EDM4HEP/DATA/1994_old/LAST #DATA1994old
 nCPUS = -1
 
 
