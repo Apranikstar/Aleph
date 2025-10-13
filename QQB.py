@@ -25,7 +25,7 @@ class RDFanalysis:
         "PFTracks": "EFlowTrack",
         "PFPhotons": "EFlowPhoton",
         "PFNeutralHadrons": "EFlowNeutralHadron",
-        "TrackState": "_Tracks_trackStates",
+        "TrackState": "Tracks",
         "TrackerHits": "TrackerHits",
         "CalorimeterHits": "CalorimeterHits",
         "PathLength": "EFlowTrack_L",
@@ -80,7 +80,7 @@ class RDFanalysis:
         df = df.Define("pfcand_thetarel","JetConstituentsUtils::get_thetarel_cluster(jets, jetc)")
         df = df.Define("pfcand_phirel",  "JetConstituentsUtils::get_phirel_cluster(jets, jetc)")
 
-        df = df.Define("Bz", '4')
+        df = df.Define("Bz", '1.5')
 
 
 ############################################# Track Parameters and Covariance #######################################################
