@@ -46,7 +46,7 @@ class RDFanalysis:
         df = df.Define("pjetc", "JetClusteringUtils::set_pseudoJets(RP_px, RP_py, RP_pz, RP_e)")
         # Anti-kt clustering and jet constituents
         ####################################################################################################
-        df = df.Define("_jet", "JetClustering::clustering_antikt(0.5, 0, 100, 0 , 1)(pjetc)")
+        df = df.Define("_jet", "JetClustering::clustering_ee_kt(2, 2, 1, 0)(pjetc)")
         df = df.Define("jets","JetClusteringUtils::get_pseudoJets(_jet)" )
         df = df.Define("_jetc", "JetClusteringUtils::get_constituents(_jet)") 
         df = df.Define("jetc", "JetConstituentsUtils::build_constituents_cluster(RecoParticles, _jetc)")
