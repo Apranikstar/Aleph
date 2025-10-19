@@ -1,5 +1,4 @@
 
-
 processList = {
 
 "QQB" : {"fraction" : 1},           
@@ -7,11 +6,9 @@ processList = {
 
 
 outputDir = "./output"
-#outputDir = "/eos/user/h/hfatehi/JetTagger/TESTPIPELINE"
 inputDir = "/eos/experiment/aleph/EDM4HEP/MC/1994"
-#inputDir =/eos/experiment/aleph/EDM4HEP/DATA/1994_old/LAST #DATA1994old
 nCPUS = -1
-
+includePaths = ["analyzer.h"]
 
 
 class RDFanalysis:
@@ -25,12 +22,15 @@ class RDFanalysis:
         "PFTracks": "EFlowTrack",
         "PFPhotons": "EFlowPhoton",
         "PFNeutralHadrons": "EFlowNeutralHadron",
-        "TrackState": "Tracks",
+        "TrackState": "_Tracks_trackStates",
         "TrackerHits": "TrackerHits",
         "CalorimeterHits": "CalorimeterHits",
         "PathLength": "EFlowTrack_L",
         "Bz": "magFieldBz",
         }
+
+
+        df = df.Filter("FCCAnalyses::AlephSelection::sel_class_filter(16)(ClassBitset)")
 
 
         # Define RP kinematics
