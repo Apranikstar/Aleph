@@ -1,4 +1,3 @@
-hfatehi@lxplus919 /afs/cern.ch/work/h/hfatehi/aleph $ cat analyzer.h 
 #ifndef SELECTIONUTILS_H
 #define SELECTIONUTILS_H
 
