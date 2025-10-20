@@ -7,7 +7,7 @@ processList = {
 outputDir = "./output"
 inputDir = "/eos/experiment/aleph/EDM4HEP/MC/1994"
 nCPUS = -1
-includePaths = ["../AlephFunctions.h"]
+includePaths = ["analyzer.h"]
 
 
 class RDFanalysis:
@@ -26,6 +26,7 @@ class RDFanalysis:
         "CalorimeterHits": "CalorimeterHits",
         "PathLength": "EFlowTrack_L",
         "Bz": "magFieldBz",
+        #"PIDs":"ParticleID"
         }
 
 
@@ -49,6 +50,7 @@ class RDFanalysis:
         df = df.Define("jets","JetClusteringUtils::get_pseudoJets(_jet)" )
         df = df.Define("_jetc", "JetClusteringUtils::get_constituents(_jet)") 
         df = df.Define("jetc", "JetConstituentsUtils::build_constituents_cluster(RecoParticles, _jetc)")
+        df = df.Define("jetConstitutentsTypes", f"AlephSelection::build_constituents_Types()(ParticleID, _jetc)")
 
 
         ############################################# Event Level Variables #######################################################
@@ -65,11 +67,18 @@ class RDFanalysis:
         # df = df.Define("pfcand_isChargedHad","JetConstituentsUtils::get_isChargedHad(jetc)") 
         # df = df.Define("pfcand_isGamma",    "JetConstituentsUtils::get_isGamma(jetc)") 
         # df = df.Define("pfcand_isNeutralHad","JetConstituentsUtils::get_isNeutralHad(jetc)")
-        df = df.Define("pfcand_isMu",     "AlephSelection::get_isMu(jetc)")
-        df = df.Define("pfcand_isEl",     "AlephSelection::get_isEl(jetc)")
-        df = df.Define("pfcand_isGamma",  "AlephSelection::get_isGamma(jetc)")
-        df = df.Define("pfcand_isChargedHad", "AlephSelection::get_isChargedHad(jetc)")
-        df = df.Define("pfcand_isNeutralHad", "AlephSelection::get_isNeutralHad(jetc)")
+        # df = df.Define("pfcand_isMu",     "AlephSelection::get_isMu(jetc)")
+        # df = df.Define("pfcand_isEl",     "AlephSelection::get_isEl(jetc)")
+        # df = df.Define("pfcand_isGamma",  "AlephSelection::get_isGamma(jetc)")
+        # df = df.Define("pfcand_isChargedHad", "AlephSelection::get_isChargedHad(jetc)")
+        # df = df.Define("pfcand_isNeutralHad", "AlephSelection::get_isNeutralHad(jetc)")
+
+
+        df = df.Define("pfcand_isMu",     "AlephSelection::get_isType(jetConstitutentsTypes,2)")
+        df = df.Define("pfcand_isEl",     "AlephSelection::get_isType(jetConstitutentsTypes,1)")
+        df = df.Define("pfcand_isGamma",  "AlephSelection::get_isType(jetConstitutentsTypes,4)")
+        df = df.Define("pfcand_isChargedHad", "AlephSelection::get_isType(jetConstitutentsTypes,0)")
+        df = df.Define("pfcand_isNeutralHad", "AlephSelection::get_isType(jetConstitutentsTypes,5)")
 
 
 
@@ -174,7 +183,9 @@ class RDFanalysis:
     def output():
 
         return [
-                "event_invariant_mass","event_njet",  
+            "jetConstitutentsTypes",
+
+            "event_invariant_mass","event_njet",  
             #"jet_mass","jet_p","jet_e", "jet_phi", "jet_theta", "jet_pT",
                 "jet_p_leading",
                 "jet_e_leading",
