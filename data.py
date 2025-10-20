@@ -8,6 +8,7 @@ outputDir = "./output"
 #inputDir = "/eos/experiment/aleph/EDM4HEP/MC/1994"
 inputDir ="/eos/user/h/hfatehi/Aleph/" #DATA1994old
 nCPUS = -1
+includePaths = ["analyzer.h"]
 
 
 
@@ -29,7 +30,7 @@ class RDFanalysis:
         "Bz": "magFieldBz",
         }
 
-        df = df.Define("Category", "ClassBitset")
+        df = df.Filter("FCCAnalyses::AlephSelection::sel_class_filter(16)(ClassBitset)")
 
         # Define RP kinematics
         ####################################################################################################
