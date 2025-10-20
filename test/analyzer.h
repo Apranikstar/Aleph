@@ -238,7 +238,27 @@ struct get_EventPrimaryVertexP4 {
   }
 };
 
+float get_EventType(const ROOT::VecOps::RVec<edm4hep::MCParticleData>& in) {
+    float result = -1;
+    // Look for the first particle with non-zero type
 
+    //std::cout<<"DEBUG: get_EventType called with "<<in.size()<<" particles\n"<<std::endl;
+
+    // for (const auto& p : in) {
+    //   std::cout<<"DEBUG: Particle PDG="<<p.PDG<<" px="<<p.momentum.x<<" py="<<p.momentum.y<<" pz="<<p.momentum.z<<" status="<<p.generatorStatus<<std::endl;
+    // }
+
+    // first particle encountered with pdg > 0 and < 6
+    for (const auto& p : in) {
+      if (std::abs(p.PDG) > 0 && std::abs(p.PDG) < 6) {
+        result = static_cast<float>(abs(p.PDG));
+        break;
+      }
+    }
+
+    // std::cout<<""<<result<<"\n"<<std::endl;
+    return result;
+}
 
 rv::RVec<FCCAnalysesJetConstituentsData>
 get_isType(const rv::RVec<FCCAnalysesJetConstituentsData>& jcs, float type) {

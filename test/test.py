@@ -26,7 +26,6 @@ class RDFanalysis:
         "CalorimeterHits": "CalorimeterHits",
         "PathLength": "EFlowTrack_L",
         "Bz": "magFieldBz",
-        #"PIDs":"ParticleID"
         }
 
 
@@ -56,22 +55,13 @@ class RDFanalysis:
         ############################################# Event Level Variables #######################################################
         df = df.Define("jet_p4", "JetConstituentsUtils::compute_tlv_jets(jets)" )
         df = df.Define("event_invariant_mass", "JetConstituentsUtils::InvariantMass(jet_p4[0], jet_p4[1])")
-
+        df = df.Define("event_type", "AlephSelection::get_EventType({})".format(coll["GenParticles"]))
         # ===== VERTEX
         # MC primary vertex
         df = df.Define("pv", f'AlephSelection::get_EventPrimaryVertexP4()({coll["GenParticles"]})')
-        ############################################# Particle Flow Level Variables #######################################################
 
-        # df = df.Define("pfcand_isMu",       "JetConstituentsUtils::get_isMu(jetc)") 
-        # df = df.Define("pfcand_isEl",       "JetConstituentsUtils::get_isEl(jetc)") 
-        # df = df.Define("pfcand_isChargedHad","JetConstituentsUtils::get_isChargedHad(jetc)") 
-        # df = df.Define("pfcand_isGamma",    "JetConstituentsUtils::get_isGamma(jetc)") 
-        # df = df.Define("pfcand_isNeutralHad","JetConstituentsUtils::get_isNeutralHad(jetc)")
-        # df = df.Define("pfcand_isMu",     "AlephSelection::get_isMu(jetc)")
-        # df = df.Define("pfcand_isEl",     "AlephSelection::get_isEl(jetc)")
-        # df = df.Define("pfcand_isGamma",  "AlephSelection::get_isGamma(jetc)")
-        # df = df.Define("pfcand_isChargedHad", "AlephSelection::get_isChargedHad(jetc)")
-        # df = df.Define("pfcand_isNeutralHad", "AlephSelection::get_isNeutralHad(jetc)")
+
+        ############################################# Particle Flow Level Variables #######################################################
 
 
         df = df.Define("pfcand_isMu",     "AlephSelection::get_isType(jetConstitutentsTypes,2)")
@@ -81,19 +71,18 @@ class RDFanalysis:
         df = df.Define("pfcand_isNeutralHad", "AlephSelection::get_isType(jetConstitutentsTypes,5)")
 
 
-
         ############################################# Kinematics and PID #######################################################
 
         df = df.Define("pfcand_e",        "JetConstituentsUtils::get_e(jetc)") 
-        df = df .Define("pfcand_p",        "JetConstituentsUtils::get_p(jetc)") 
+        df = df.Define("pfcand_p",        "JetConstituentsUtils::get_p(jetc)") 
         df = df.Define("pfcand_theta",    "JetConstituentsUtils::get_theta(jetc)") 
         df = df.Define("pfcand_phi",      "JetConstituentsUtils::get_phi(jetc)") 
         df = df.Define("pfcand_charge",   "JetConstituentsUtils::get_charge(jetc)") 
         df = df.Define("pfcand_type",     "JetConstituentsUtils::get_type(jetc)") 
-        df = df.Define("pfcand_erel", "JetConstituentsUtils::get_erel_cluster(jets, jetc)")
+        df = df.Define("pfcand_erel",     "JetConstituentsUtils::get_erel_cluster(jets, jetc)")
         df = df.Define("pfcand_erel_log", "JetConstituentsUtils::get_erel_log_cluster(jets, jetc)")
-        df = df.Define("pfcand_thetarel","JetConstituentsUtils::get_thetarel_cluster(jets, jetc)")
-        df = df.Define("pfcand_phirel",  "JetConstituentsUtils::get_phirel_cluster(jets, jetc)")
+        df = df.Define("pfcand_thetarel", "JetConstituentsUtils::get_thetarel_cluster(jets, jetc)")
+        df = df.Define("pfcand_phirel",   "JetConstituentsUtils::get_phirel_cluster(jets, jetc)")
 
         df = df.Define("Bz", '1.5')
 
@@ -183,8 +172,7 @@ class RDFanalysis:
     def output():
 
         return [
-            "jetConstitutentsTypes",
-
+            "event_type",
             "event_invariant_mass","event_njet",  
             #"jet_mass","jet_p","jet_e", "jet_phi", "jet_theta", "jet_pT",
                 "jet_p_leading",
