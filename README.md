@@ -5,6 +5,6 @@ Quick guide on how to use the repo:
 ```bash
 git clone https://github.com/Apranikstar/Aleph.git
 cd Aleph/test
-source /cvmfs/sw.hsf.org/key4hep/setup.sh
+source /cvmfs/sw.hsf.org/key4hep/setup.sh -r 2025-01-28
 fccanalysis run test.py
 ```
