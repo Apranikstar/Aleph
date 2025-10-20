@@ -8,7 +8,7 @@ processList = {
 outputDir = "./output"
 inputDir = "/eos/experiment/aleph/EDM4HEP/MC/1994"
 nCPUS = -1
-includePaths = ["analyzer.h"]
+includePaths = ["../analyzer2.h"]
 
 
 class RDFanalysis:
