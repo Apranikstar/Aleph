@@ -134,13 +134,31 @@ class RDFanalysis:
         ##############################################################################################################
         df = df.Define("sumTLVs", "JetConstituentsUtils::sum_tlv_constituents(jetc)")
 
-        df = df.Define("jet_p", "ROOT::VecOps::RVec<Double_t>({sumTLVs[0].P(), sumTLVs[1].P()})")
-        df = df.Define("jet_e", "ROOT::VecOps::RVec<Double_t>({sumTLVs[0].E(), sumTLVs[1].E()})")
-        df = df.Define("jet_mass", "ROOT::VecOps::RVec<Double_t>({sumTLVs[0].M(), sumTLVs[1].M()})")
-        df = df.Define("jet_phi", "ROOT::VecOps::RVec<Double_t>({sumTLVs[0].Phi(), sumTLVs[1].Phi()})")
-        df = df.Define("jet_theta", "ROOT::VecOps::RVec<Double_t>({sumTLVs[0].Theta(), sumTLVs[1].Theta()})")
-        df = df.Define("jet_pT", "ROOT::VecOps::RVec<Double_t>({sumTLVs[0].Pt(), sumTLVs[1].Pt()})")
-        df = df.Define("jet_eta", "ROOT::VecOps::RVec<Double_t>({sumTLVs[0].Eta(), sumTLVs[1].Eta()})")
+        # df = df.Define("jet_p", "ROOT::VecOps::RVec<Double_t>({sumTLVs[0].P(), sumTLVs[1].P()})")
+        # df = df.Define("jet_e", "ROOT::VecOps::RVec<Double_t>({sumTLVs[0].E(), sumTLVs[1].E()})")
+        # df = df.Define("jet_mass", "ROOT::VecOps::RVec<Double_t>({sumTLVs[0].M(), sumTLVs[1].M()})")
+        # df = df.Define("jet_phi", "ROOT::VecOps::RVec<Double_t>({sumTLVs[0].Phi(), sumTLVs[1].Phi()})")
+        # df = df.Define("jet_theta", "ROOT::VecOps::RVec<Double_t>({sumTLVs[0].Theta(), sumTLVs[1].Theta()})")
+        # df = df.Define("jet_pT", "ROOT::VecOps::RVec<Double_t>({sumTLVs[0].Pt(), sumTLVs[1].Pt()})")
+        # df = df.Define("jet_eta", "ROOT::VecOps::RVec<Double_t>({sumTLVs[0].Eta(), sumTLVs[1].Eta()})")
+        # Leading jet
+        df = df.Define("jet_p_leading",      "sumTLVs[0].P()")
+        df = df.Define("jet_e_leading",      "sumTLVs[0].E()")
+        df = df.Define("jet_mass_leading",   "sumTLVs[0].M()")
+        df = df.Define("jet_phi_leading",    "sumTLVs[0].Phi()")
+        df = df.Define("jet_theta_leading",  "sumTLVs[0].Theta()")
+        df = df.Define("jet_pT_leading",     "sumTLVs[0].Pt()")
+        df = df.Define("jet_eta_leading",    "sumTLVs[0].Eta()")
+        
+        // Subleading jet
+        df = df.Define("jet_p_subleading",      "sumTLVs[1].P()")
+        df = df.Define("jet_e_subleading",      "sumTLVs[1].E()")
+        df = df.Define("jet_mass_subleading",   "sumTLVs[1].M()")
+        df = df.Define("jet_phi_subleading",    "sumTLVs[1].Phi()")
+        df = df.Define("jet_theta_subleading",  "sumTLVs[1].Theta()")
+        df = df.Define("jet_pT_subleading",     "sumTLVs[1].Pt()")
+        df = df.Define("jet_eta_subleading",    "sumTLVs[1].Eta()")
+
 
         df = df.Define("jet_nconst", "JetConstituentsUtils::count_consts(jetc)") 
         ##
@@ -157,8 +175,22 @@ class RDFanalysis:
     def output():
 
         return [
-                "event_invariant_mass","event_njet",  "jet_mass","jet_p","jet_e", "jet_phi", "jet_theta", "jet_pT",
-                
+                "event_invariant_mass","event_njet",  
+            #"jet_mass","jet_p","jet_e", "jet_phi", "jet_theta", "jet_pT",
+             "jet_p_leading",
+    "jet_e_leading",
+    "jet_mass_leading",
+    "jet_phi_leading",
+    "jet_theta_leading",
+    "jet_pT_leading",
+    "jet_eta_leading",
+    "jet_p_subleading",
+    "jet_e_subleading",
+    "jet_mass_subleading",
+    "jet_phi_subleading",
+    "jet_theta_subleading",
+    "jet_pT_subleading",
+    "jet_eta_subleading",   
                 "jet_nnhad","jet_ngamma","jet_nchad","jet_nel", "jet_nmu", "jet_nconst",
                 
                 "pfcand_isMu", "pfcand_isEl", "pfcand_isChargedHad", "pfcand_isGamma", "pfcand_isNeutralHad",
