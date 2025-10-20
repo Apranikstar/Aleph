@@ -150,7 +150,7 @@ class RDFanalysis:
         df = df.Define("jet_pT_leading",     "sumTLVs[0].Pt()")
         df = df.Define("jet_eta_leading",    "sumTLVs[0].Eta()")
         
-        // Subleading jet
+        # Subleading jet
         df = df.Define("jet_p_subleading",      "sumTLVs[1].P()")
         df = df.Define("jet_e_subleading",      "sumTLVs[1].E()")
         df = df.Define("jet_mass_subleading",   "sumTLVs[1].M()")
