@@ -65,11 +65,11 @@ class RDFanalysis:
         # df = df.Define("pfcand_isChargedHad","JetConstituentsUtils::get_isChargedHad(jetc)") 
         # df = df.Define("pfcand_isGamma",    "JetConstituentsUtils::get_isGamma(jetc)") 
         # df = df.Define("pfcand_isNeutralHad","JetConstituentsUtils::get_isNeutralHad(jetc)")
-        df = df.Define("pfcand_isMu",     "FCCAnalyses::AlephSelection::get_isMu(jetc)")
-        df = df.Define("pfcand_isEl",     "FCCAnalyses::AlephSelection::get_isEl(jetc)")
-        df = df.Define("pfcand_isGamma",  "FCCAnalyses::AlephSelection::get_isGamma(jetc)")
-        df = df.Define("pfcand_isChargedHad", "FCCAnalyses::AlephSelection::get_isChargedHad(jetc)")
-        df = df.Define("pfcand_isNeutralHad", "FCCAnalyses::AlephSelection::get_isNeutralHad(jetc)")
+        df = df.Define("pfcand_isMu",     "AlephSelection::get_isMu(jetc)")
+        df = df.Define("pfcand_isEl",     "AlephSelection::get_isEl(jetc)")
+        df = df.Define("pfcand_isGamma",  "AlephSelection::get_isGamma(jetc)")
+        df = df.Define("pfcand_isChargedHad", "AlephSelection::get_isChargedHad(jetc)")
+        df = df.Define("pfcand_isNeutralHad", "AlephSelection::get_isNeutralHad(jetc)")
 
 
 
