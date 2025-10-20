@@ -207,7 +207,8 @@ struct get_EventPrimaryVertexP4 {
 
     // First, look for generatorStatus == m_genstatus (e.g., 21 for Pythia8 hard process incoming)
     for (const auto& p : in) {
-      if (p.generatorStatus == m_genstatus) {
+      //if (p.generatorStatus == m_genstatus) {
+      if (1) {
         // vertex.time is in seconds, convert to mm
         TLorentzVector res(p.vertex.x,
                            p.vertex.y,
