@@ -30,7 +30,7 @@ class RDFanalysis:
         }
 
 
-        df = df.Filter("FCCAnalyses::AlephSelection::sel_class_filter(16)(ClassBitset)")
+        df = df.Filter("AlephSelection::sel_class_filter(16)(ClassBitset)")
 
 
         # Define RP kinematics
