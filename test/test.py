@@ -56,6 +56,11 @@ class RDFanalysis:
         df = df.Define("jet_p4", "JetConstituentsUtils::compute_tlv_jets(jets)" )
         df = df.Define("event_invariant_mass", "JetConstituentsUtils::InvariantMass(jet_p4[0], jet_p4[1])")
         df = df.Define("event_type", "AlephSelection::get_EventType({})".format(coll["GenParticles"]))
+
+         ########## Picking Jet Flavors
+
+        #df.Filter("event_type == 2") # d-quark: 1, u-quark:2, s-quark:3, c-quark:4, b-quark: 5
+
         # ===== VERTEX
         # MC primary vertex
         df = df.Define("pv", f'AlephSelection::get_EventPrimaryVertexP4()({coll["GenParticles"]})')
