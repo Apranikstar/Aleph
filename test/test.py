@@ -136,13 +136,13 @@ class RDFanalysis:
         ##############################################################################################################
         df = df.Define("sumTLVs", "JetConstituentsUtils::sum_tlv_constituents(jetc)")
 
-        # df = df.Define("jet_p", "ROOT::VecOps::RVec<Double_t>({sumTLVs[0].P(), sumTLVs[1].P()})")
-        # df = df.Define("jet_e", "ROOT::VecOps::RVec<Double_t>({sumTLVs[0].E(), sumTLVs[1].E()})")
-        # df = df.Define("jet_mass", "ROOT::VecOps::RVec<Double_t>({sumTLVs[0].M(), sumTLVs[1].M()})")
-        # df = df.Define("jet_phi", "ROOT::VecOps::RVec<Double_t>({sumTLVs[0].Phi(), sumTLVs[1].Phi()})")
-        # df = df.Define("jet_theta", "ROOT::VecOps::RVec<Double_t>({sumTLVs[0].Theta(), sumTLVs[1].Theta()})")
-        # df = df.Define("jet_pT", "ROOT::VecOps::RVec<Double_t>({sumTLVs[0].Pt(), sumTLVs[1].Pt()})")
-        # df = df.Define("jet_eta", "ROOT::VecOps::RVec<Double_t>({sumTLVs[0].Eta(), sumTLVs[1].Eta()})")
+        df = df.Define("jet_p", "ROOT::VecOps::RVec<Double_t>({sumTLVs[0].P(), sumTLVs[1].P()})")
+        df = df.Define("jet_e", "ROOT::VecOps::RVec<Double_t>({sumTLVs[0].E(), sumTLVs[1].E()})")
+        df = df.Define("jet_mass", "ROOT::VecOps::RVec<Double_t>({sumTLVs[0].M(), sumTLVs[1].M()})")
+        df = df.Define("jet_phi", "ROOT::VecOps::RVec<Double_t>({sumTLVs[0].Phi(), sumTLVs[1].Phi()})")
+        df = df.Define("jet_theta", "ROOT::VecOps::RVec<Double_t>({sumTLVs[0].Theta(), sumTLVs[1].Theta()})")
+        df = df.Define("jet_pT", "ROOT::VecOps::RVec<Double_t>({sumTLVs[0].Pt(), sumTLVs[1].Pt()})")
+        df = df.Define("jet_eta", "ROOT::VecOps::RVec<Double_t>({sumTLVs[0].Eta(), sumTLVs[1].Eta()})")
         # Leading jet
         df = df.Define("jet_p_leading",      "sumTLVs[0].P()")
         df = df.Define("jet_e_leading",      "sumTLVs[0].E()")
@@ -170,6 +170,11 @@ class RDFanalysis:
         df = df.Define(f"jet_ngamma", f"JetConstituentsUtils::count_type(pfcand_isGamma)") 
         df = df.Define(f"jet_nnhad",  f"JetConstituentsUtils::count_type(pfcand_isNeutralHad)")
 
+        df = df.Define("dEdxPadsValue" , "dEdxPads.dQdx.value")
+        df = df.Define("dEdxPadsError" , "dEdxPads.dQdx.error")
+        df = df.Define("dEdxWiresValue" , "dEdxWires.dQdx.value")
+        df = df.Define("dEdxWiresError" , "dEdxPads.dQdx.error")
+
 
 
         return df
@@ -180,6 +185,7 @@ class RDFanalysis:
             "event_type",
             "event_invariant_mass","event_njet",  
             #"jet_mass","jet_p","jet_e", "jet_phi", "jet_theta", "jet_pT",
+            "dEdxPadsValue", "dEdxPadsError", "dEdxWiresValue", "dEdxWiresError",
                 "jet_p_leading",
                 "jet_e_leading",
                 "jet_mass_leading",
