@@ -59,7 +59,7 @@ class RDFanalysis:
 
          ########## Picking Jet Flavors
 
-        #df.Filter("event_type == 2") # d-quark: 1, u-quark:2, s-quark:3, c-quark:4, b-quark: 5
+        #df = df.Filter("event_type == 2") # d-quark: 1, u-quark:2, s-quark:3, c-quark:4, b-quark: 5
 
         # ===== VERTEX
         # MC primary vertex
