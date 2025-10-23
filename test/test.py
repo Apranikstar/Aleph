@@ -175,6 +175,16 @@ class RDFanalysis:
         df = df.Define("dEdxWiresValue" , "dEdxWires.dQdx.value")
         df = df.Define("dEdxWiresError" , "dEdxPads.dQdx.error")
 
+        #testing associating RecoParticle -> Track -> dEdx
+        # (const rv::RVec<edm4hep::ReconstructedParticleData> &recoParticles,
+        #      const rv::RVec<edm4hep::TrackData> &tracks,
+        #      const rv::RVec<edm4hep::RecDqdx> &dEdxCollection,
+        #      const rv::RVec<int> &_dEdxIndicesCollection, 
+        #      const std::vector<std::vector<int>> &jet_constituents_indices)
+
+        df = df.Define("jet_constituents_dEdx_pads_objs", "AlephSelection::build_constituents_dEdx()(RecoParticles, _RecoParticles_tracks.index, Tracks, dEdxPads, _dEdxPads_track.index, _jetc)" )
+        # df = df.Define("jet_constituents_dEdx_pads_value", "jet_constituents_dEdx_pads_objs.All('value')" )
+        df = df.Define("jet_constituents_dEdx_pads_value", "AlephSelection::get_dEdx_values(jet_constituents_dEdx_pads_objs)")
 
 
         return df
@@ -186,6 +196,7 @@ class RDFanalysis:
             "event_invariant_mass","event_njet",  
             #"jet_mass","jet_p","jet_e", "jet_phi", "jet_theta", "jet_pT",
             "dEdxPadsValue", "dEdxPadsError", "dEdxWiresValue", "dEdxWiresError",
+            "jet_constituents_dEdx_pads_value",
                 "jet_p_leading",
                 "jet_e_leading",
                 "jet_mass_leading",
