@@ -193,7 +193,7 @@ class RDFanalysis:
         return [
             "event_type",
             "event_invariant_mass","event_njet",  
-            #"jet_mass","jet_p","jet_e", "jet_phi", "jet_theta", "jet_pT",
+            "jet_mass","jet_p","jet_e", "jet_phi", "jet_theta", "jet_pT",
             "dEdxPadsValue", "dEdxPadsError", "dEdxWiresValue", "dEdxWiresError",
             #the dEdX values associated to the jet constituents:
             "jet_constituents_dEdx_pads_type", "jet_constituents_dEdx_pads_value", "jet_constituents_dEdx_pads_error",
