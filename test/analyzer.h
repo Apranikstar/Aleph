@@ -384,12 +384,36 @@ struct build_constituents_dEdx{
 
 //helpers to read the dEdx objects (to check if can reuse existing FCCAna functions instead):
 
-rv::RVec<rv::RVec<float>> get_dEdx_values(const rv::RVec<rv::RVec<edm4hep::RecDqdxData>> &dedx_vec) {
+rv::RVec<rv::RVec<float>> get_dEdx_type(const rv::RVec<rv::RVec<edm4hep::RecDqdxData>> &dedx_vec) {
+  rv::RVec<rv::RVec<float>> values;
+  for (const auto &inner_vec : dedx_vec) {
+    rv::RVec<float> inner_values;
+    for (const auto &d : inner_vec) {
+      inner_values.push_back(d.dQdx.type);
+    }
+    values.push_back(inner_values);
+  }
+  return values;
+}
+
+rv::RVec<rv::RVec<float>> get_dEdx_value(const rv::RVec<rv::RVec<edm4hep::RecDqdxData>> &dedx_vec) {
   rv::RVec<rv::RVec<float>> values;
   for (const auto &inner_vec : dedx_vec) {
     rv::RVec<float> inner_values;
     for (const auto &d : inner_vec) {
       inner_values.push_back(d.dQdx.value);
+    }
+    values.push_back(inner_values);
+  }
+  return values;
+}
+
+rv::RVec<rv::RVec<float>> get_dEdx_error(const rv::RVec<rv::RVec<edm4hep::RecDqdxData>> &dedx_vec) {
+  rv::RVec<rv::RVec<float>> values;
+  for (const auto &inner_vec : dedx_vec) {
+    rv::RVec<float> inner_values;
+    for (const auto &d : inner_vec) {
+      inner_values.push_back(d.dQdx.error);
     }
     values.push_back(inner_values);
   }
