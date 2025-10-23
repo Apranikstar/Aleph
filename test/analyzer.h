@@ -340,7 +340,6 @@ struct build_constituents_dEdx{
     rv::RVec<rv::RVec<edm4hep::RecDqdxData>>
     operator()(const rv::RVec<edm4hep::ReconstructedParticleData> &recoParticles,
              const rv::RVec<int> &_recoParticlesIndices,
-             const rv::RVec<edm4hep::TrackData> &tracks,
              const rv::RVec<edm4hep::RecDqdxData> &dEdxCollection,
              const rv::RVec<int> &_dEdxIndicesCollection, 
              const std::vector<std::vector<int>> &jet_indices) const
@@ -379,18 +378,6 @@ struct build_constituents_dEdx{
           }
           dedx_constituents.push_back(jet_dEdx); 
         }
-        
-
-
-        // for (const auto &jet_index : indices)
-        // {
-        //     FCCAnalysesJetConstituentsData jc;
-        //     for (const auto &const_index : jet_index)
-        //     {
-        //         jc.push_back(rpid.at(const_index).type);
-        //     }
-        //     jcs.push_back(jc);
-        // }
         return dedx_constituents;
     }
 };
