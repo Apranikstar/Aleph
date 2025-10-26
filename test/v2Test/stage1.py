@@ -131,7 +131,7 @@ class RDFanalysis:
 
         ############################################# Jet Level Variables #######################################################
         df=df.Define("event_njet",   "JetConstituentsUtils::count_jets(jetc)")
-        df.Filter("event_njet > 1")
+        df = df.Filter("event_njet > 1")
 
 
         # compute jet observables
