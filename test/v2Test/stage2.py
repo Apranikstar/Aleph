@@ -16,8 +16,8 @@ def process_root_file_to_parquet(
     os.makedirs(output_dir, exist_ok=True)
 
     pfcand_keys = [
-        "jet_constituents_dEdx_pads_type", "jet_constituents_dEdx_pads_value", "jet_constituents_dEdx_pads_error",
-        "jet_constituents_dEdx_wires_type", "jet_constituents_dEdx_wires_value", "jet_constituents_dEdx_wires_error",
+        "pfcand_dEdx_pads_type", "pfcand_dEdx_pads_value", "pfcand_dEdx_pads_error",
+        "pfcand_dEdx_wires_type", "pfcand_dEdx_wires_value", "pfcand_dEdx_wires_error",
                
                 
         "pfcand_isMu", "pfcand_isEl", "pfcand_isChargedHad", "pfcand_isGamma", "pfcand_isNeutralHad",
