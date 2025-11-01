@@ -150,15 +150,15 @@ class RDFanalysis:
         ##############################################################################################################
 
 
-        df = df.Define("pfcand_dEdx_pads_objs", "AlephSelection::build_constituents_dEdx()(RecoParticles, _RecoParticles_tracks.index, dEdxPads, _dEdxPads_track.index, _jetc)" )
-        df = df.Define("pfcand_dEdx_pads_type", "AlephSelection::get_dEdx_type(pfcand_dEdx_pads_objs)")
-        df = df.Define("pfcand_dEdx_pads_value", "AlephSelection::get_dEdx_value(pfcand_dEdx_pads_objs)")
-        df = df.Define("pfcand_dEdx_pads_error", "AlephSelection::get_dEdx_error(pfcand_dEdx_pads_objs)")
+        # df = df.Define("pfcand_dEdx_pads_objs", "AlephSelection::build_constituents_dEdx()(RecoParticles, _RecoParticles_tracks.index, dEdxPads, _dEdxPads_track.index, _jetc)" )
+        # df = df.Define("pfcand_dEdx_pads_type", "AlephSelection::get_dEdx_type(pfcand_dEdx_pads_objs)")
+        # df = df.Define("pfcand_dEdx_pads_value", "AlephSelection::get_dEdx_value(pfcand_dEdx_pads_objs)")
+        # df = df.Define("pfcand_dEdx_pads_error", "AlephSelection::get_dEdx_error(pfcand_dEdx_pads_objs)")
 
-        df = df.Define("pfcand_dEdx_wires_objs", "AlephSelection::build_constituents_dEdx()(RecoParticles, _RecoParticles_tracks.index, dEdxWires, _dEdxWires_track.index, _jetc)" )
-        df = df.Define("pfcand_dEdx_wires_type", "AlephSelection::get_dEdx_type(pfcand_dEdx_wires_objs)")
-        df = df.Define("pfcand_dEdx_wires_value", "AlephSelection::get_dEdx_value(pfcand_dEdx_wires_objs)")
-        df = df.Define("pfcand_dEdx_wires_error", "AlephSelection::get_dEdx_error(pfcand_dEdx_wires_objs)")
+        # df = df.Define("pfcand_dEdx_wires_objs", "AlephSelection::build_constituents_dEdx()(RecoParticles, _RecoParticles_tracks.index, dEdxWires, _dEdxWires_track.index, _jetc)" )
+        # df = df.Define("pfcand_dEdx_wires_type", "AlephSelection::get_dEdx_type(pfcand_dEdx_wires_objs)")
+        # df = df.Define("pfcand_dEdx_wires_value", "AlephSelection::get_dEdx_value(pfcand_dEdx_wires_objs)")
+        # df = df.Define("pfcand_dEdx_wires_error", "AlephSelection::get_dEdx_error(pfcand_dEdx_wires_objs)")
 
 
 
