@@ -314,16 +314,29 @@ class RDFanalysis:
          #  "pfcand_dEdx_el_type", "pfcand_dEdx_el_value", "pfcand_dEdx_el_error",
             ### Event Level Variables
 
-
-                # Pads
-    "pfcand_dEdx_el_type", "pfcand_dEdx_el_value", "pfcand_dEdx_el_error",
-    "pfcand_dEdx_mu_type", "pfcand_dEdx_mu_value", "pfcand_dEdx_mu_error",
-    "pfcand_dEdx_ch_type", "pfcand_dEdx_ch_value", "pfcand_dEdx_ch_error",
+ # Pads
+    "pfcand_dEdx_el_value_good",
+    "pfcand_dEdx_mu_value_good",
+    "pfcand_dEdx_ch_value_good",
+    "pfcand_dEdx_ph_value_good",
+    "pfcand_dEdx_nh_value_good",
+    "pfcand_dEdx_el_error_good",
+    "pfcand_dEdx_mu_error_good",
+    "pfcand_dEdx_ch_error_good",
+    "pfcand_dEdx_ph_error_good",
+    "pfcand_dEdx_nh_error_good",
+    
     # Wires
-    "pfcand_dEdx_el_wire_type", "pfcand_dEdx_el_wire_value", "pfcand_dEdx_el_wire_error",
-    "pfcand_dEdx_mu_wire_type", "pfcand_dEdx_mu_wire_value", "pfcand_dEdx_mu_wire_error",
-    "pfcand_dEdx_ch_wire_type", "pfcand_dEdx_ch_wire_value", "pfcand_dEdx_ch_wire_error",
-
+    "pfcand_dEdx_el_wire_value_good",
+    "pfcand_dEdx_mu_wire_value_good",
+    "pfcand_dEdx_ch_wire_value_good",
+    "pfcand_dEdx_ph_wire_value_good",
+    "pfcand_dEdx_nh_wire_value_good",
+    "pfcand_dEdx_el_wire_error_good",
+    "pfcand_dEdx_mu_wire_error_good",
+    "pfcand_dEdx_ch_wire_error_good",
+    "pfcand_dEdx_ph_wire_error_good",
+    "pfcand_dEdx_nh_wire_error_good",
 
             "event_invariant_mass","event_njet",  
 
