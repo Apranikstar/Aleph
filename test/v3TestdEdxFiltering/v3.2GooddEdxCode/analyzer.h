@@ -237,6 +237,42 @@ struct build_constituents_dEdx_filtered {
 
 
 
+// rv::RVec<rv::RVec<float>> get_good_dEdx_value(
+//     const rv::RVec<rv::RVec<edm4hep::RecDqdxData>> &dedx_vec) {
+
+//     rv::RVec<rv::RVec<float>> values;
+//     values.reserve(dedx_vec.size());
+
+//     for (const auto &inner_vec : dedx_vec) {
+//         rv::RVec<float> inner_values;
+//         for (const auto &d : inner_vec) {
+//             if (d.dQdx.type == 0) {
+//                 inner_values.push_back(d.dQdx.value);
+//             }
+//         }
+//         values.push_back(std::move(inner_values));
+//     }
+//     return values;
+// }
+
+// rv::RVec<rv::RVec<float>> get_good_dEdx_error(
+//     const rv::RVec<rv::RVec<edm4hep::RecDqdxData>> &dedx_vec) {
+
+//     rv::RVec<rv::RVec<float>> values;
+//     values.reserve(dedx_vec.size());
+
+//     for (const auto &inner_vec : dedx_vec) {
+//         rv::RVec<float> inner_values;
+//         for (const auto &d : inner_vec) {
+//             if (d.dQdx.type == 0) {
+//                 inner_values.push_back(d.dQdx.error);
+//             }
+//         }
+//         values.push_back(std::move(inner_values));
+//     }
+//     return values;
+// }
+
 rv::RVec<rv::RVec<float>> get_good_dEdx_value(
     const rv::RVec<rv::RVec<edm4hep::RecDqdxData>> &dedx_vec) {
 
@@ -245,9 +281,12 @@ rv::RVec<rv::RVec<float>> get_good_dEdx_value(
 
     for (const auto &inner_vec : dedx_vec) {
         rv::RVec<float> inner_values;
+        inner_values.reserve(inner_vec.size()); // optional, but efficient
         for (const auto &d : inner_vec) {
             if (d.dQdx.type == 0) {
                 inner_values.push_back(d.dQdx.value);
+            } else {
+                inner_values.push_back(-9.0f); // placeholder
             }
         }
         values.push_back(std::move(inner_values));
@@ -263,9 +302,12 @@ rv::RVec<rv::RVec<float>> get_good_dEdx_error(
 
     for (const auto &inner_vec : dedx_vec) {
         rv::RVec<float> inner_values;
+        inner_values.reserve(inner_vec.size()); // optional, but efficient
         for (const auto &d : inner_vec) {
             if (d.dQdx.type == 0) {
                 inner_values.push_back(d.dQdx.error);
+            } else {
+                inner_values.push_back(-9.0f); // placeholder
             }
         }
         values.push_back(std::move(inner_values));
