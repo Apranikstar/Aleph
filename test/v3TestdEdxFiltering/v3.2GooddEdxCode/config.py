@@ -398,91 +398,177 @@ variables_pfcand = {
         "xmax": 3.14,
         "scale": "lin",
     },
-
-  # Pads
-    "pfcand_dEdx_ch_value_pads": {
-        "name": "pfcand_dEdx_ch_value_good",
-        "title": "dE/dx (Pads) CH [arb. units]",
-        "bin": 100,
-        "xmin": 0,
-        "xmax": 20,
-        "scale": "lin",
-    },
+# -------------------------
+    # Pads — values
+    # -------------------------
     "pfcand_dEdx_el_value_pads": {
-        "name": "pfcand_dEdx_el_value_good",
+        "name": "pfcand_dEdx_el_value_pads",
         "title": "dE/dx (Pads) EL [arb. units]",
-        "bin": 100,
+        "bin": 200,
         "xmin": 0,
         "xmax": 20,
         "scale": "lin",
     },
     "pfcand_dEdx_mu_value_pads": {
-        "name": "pfcand_dEdx_mu_value_good",
+        "name": "pfcand_dEdx_mu_value_pads",
         "title": "dE/dx (Pads) MU [arb. units]",
-        "bin": 100,
+        "bin": 200,
+        "xmin": 0,
+        "xmax": 20,
+        "scale": "lin",
+    },
+    "pfcand_dEdx_ch_value_pads": {
+        "name": "pfcand_dEdx_ch_value_pads",
+        "title": "dE/dx (Pads) CH [arb. units]",
+        "bin": 200,
         "xmin": 0,
         "xmax": 20,
         "scale": "lin",
     },
     "pfcand_dEdx_ph_value_pads": {
-        "name": "pfcand_dEdx_ph_value_good",
+        "name": "pfcand_dEdx_ph_value_pads",
         "title": "dE/dx (Pads) PH [arb. units]",
-        "bin": 100,
+        "bin": 200,
         "xmin": 0,
         "xmax": 20,
         "scale": "lin",
     },
     "pfcand_dEdx_nh_value_pads": {
-        "name": "pfcand_dEdx_nh_value_good",
+        "name": "pfcand_dEdx_nh_value_pads",
         "title": "dE/dx (Pads) NH [arb. units]",
-        "bin": 100,
+        "bin": 200,
         "xmin": 0,
         "xmax": 20,
         "scale": "lin",
     },
 
-    # Wires
-    "pfcand_dEdx_ch_wire_value": {
-        "name": "pfcand_dEdx_ch_wire_value_good",
-        "title": "dE/dx (Wires) CH [arb. units]",
+    # Pads — errors
+    "pfcand_dEdx_el_error_pads": {
+        "name": "pfcand_dEdx_el_error_pads",
+        "title": "dE/dx Error (Pads) EL [arb. units]",
         "bin": 100,
         "xmin": 0,
-        "xmax": 20,
+        "xmax": 5,
         "scale": "lin",
     },
-    "pfcand_dEdx_el_wire_value": {
-        "name": "pfcand_dEdx_el_wire_value_good",
+    "pfcand_dEdx_mu_error_pads": {
+        "name": "pfcand_dEdx_mu_error_pads",
+        "title": "dE/dx Error (Pads) MU [arb. units]",
+        "bin": 100,
+        "xmin": 0,
+        "xmax": 5,
+        "scale": "lin",
+    },
+    "pfcand_dEdx_ch_error_pads": {
+        "name": "pfcand_dEdx_ch_error_pads",
+        "title": "dE/dx Error (Pads) CH [arb. units]",
+        "bin": 100,
+        "xmin": 0,
+        "xmax": 5,
+        "scale": "lin",
+    },
+    "pfcand_dEdx_ph_error_pads": {
+        "name": "pfcand_dEdx_ph_error_pads",
+        "title": "dE/dx Error (Pads) PH [arb. units]",
+        "bin": 100,
+        "xmin": 0,
+        "xmax": 5,
+        "scale": "lin",
+    },
+    "pfcand_dEdx_nh_error_pads": {
+        "name": "pfcand_dEdx_nh_error_pads",
+        "title": "dE/dx Error (Pads) NH [arb. units]",
+        "bin": 100,
+        "xmin": 0,
+        "xmax": 5,
+        "scale": "lin",
+    },
+
+    # -------------------------
+    # Wires — values
+    # -------------------------
+    "pfcand_dEdx_el_wires_value": {
+        "name": "pfcand_dEdx_el_wires_value",
         "title": "dE/dx (Wires) EL [arb. units]",
-        "bin": 100,
+        "bin": 200,
         "xmin": 0,
         "xmax": 20,
         "scale": "lin",
     },
-    "pfcand_dEdx_mu_wire_value": {
-        "name": "pfcand_dEdx_mu_wire_value_good",
+    "pfcand_dEdx_mu_wires_value": {
+        "name": "pfcand_dEdx_mu_wires_value",
         "title": "dE/dx (Wires) MU [arb. units]",
-        "bin": 100,
+        "bin": 200,
         "xmin": 0,
         "xmax": 20,
         "scale": "lin",
     },
-    "pfcand_dEdx_ph_wire_value": {
-        "name": "pfcand_dEdx_ph_wire_value_good",
+    "pfcand_dEdx_ch_wires_value": {
+        "name": "pfcand_dEdx_ch_wires_value",
+        "title": "dE/dx (Wires) CH [arb. units]",
+        "bin": 200,
+        "xmin": 0,
+        "xmax": 20,
+        "scale": "lin",
+    },
+    "pfcand_dEdx_ph_wires_value": {
+        "name": "pfcand_dEdx_ph_wires_value",
         "title": "dE/dx (Wires) PH [arb. units]",
-        "bin": 100,
+        "bin": 200,
         "xmin": 0,
         "xmax": 20,
         "scale": "lin",
     },
-    "pfcand_dEdx_nh_wire_value": {
-        "name": "pfcand_dEdx_nh_wire_value_good",
+    "pfcand_dEdx_nh_wires_value": {
+        "name": "pfcand_dEdx_nh_wires_value",
         "title": "dE/dx (Wires) NH [arb. units]",
-        "bin": 100,
+        "bin": 200,
         "xmin": 0,
         "xmax": 20,
         "scale": "lin",
     },
 
+    # Wires — errors
+    "pfcand_dEdx_el_wires_error": {
+        "name": "pfcand_dEdx_el_wires_error",
+        "title": "dE/dx Error (Wires) EL [arb. units]",
+        "bin": 100,
+        "xmin": 0,
+        "xmax": 5,
+        "scale": "lin",
+    },
+    "pfcand_dEdx_mu_wires_error": {
+        "name": "pfcand_dEdx_mu_wires_error",
+        "title": "dE/dx Error (Wires) MU [arb. units]",
+        "bin": 100,
+        "xmin": 0,
+        "xmax": 5,
+        "scale": "lin",
+    },
+    "pfcand_dEdx_ch_wires_error": {
+        "name": "pfcand_dEdx_ch_wires_error",
+        "title": "dE/dx Error (Wires) CH [arb. units]",
+        "bin": 100,
+        "xmin": 0,
+        "xmax": 5,
+        "scale": "lin",
+    },
+    "pfcand_dEdx_ph_wires_error": {
+        "name": "pfcand_dEdx_ph_wires_error",
+        "title": "dE/dx Error (Wires) PH [arb. units]",
+        "bin": 100,
+        "xmin": 0,
+        "xmax": 5,
+        "scale": "lin",
+    },
+    "pfcand_dEdx_nh_wires_error": {
+        "name": "pfcand_dEdx_nh_wires_error",
+        "title": "dE/dx Error (Wires) NH [arb. units]",
+        "bin": 100,
+        "xmin": 0,
+        "xmax": 5,
+        "scale": "lin",
+    },
 
 
 
