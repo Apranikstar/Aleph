@@ -7,8 +7,8 @@ import glob
 from math import ceil
 
 # --- user configuration ---
-input_dir = "/afs/cern.ch/work/h/hfatehi/Aleph/prod/database/s1"
-output_dir = "/afs/cern.ch/work/h/hfatehi/Aleph/prod/database/s2"
+input_dir = "./output"
+output_dir = "./output/s2"
 stage2_script = "stage2.py"
 ncpus = 4  # number of parallel threads
 delete_parts_after_merge = True  # set to True to remove part files after merging
