@@ -351,8 +351,8 @@ class RDFanalysis:
             "jet_ngamma",
 
             #the dEdX values associated to the jet constituents:
-            "pfcand_dEdx_pads_type", "pfcand_dEdx_pads_value", "pfcand_dEdx_pads_error",
-            "pfcand_dEdx_wires_type", "pfcand_dEdx_wires_value", "pfcand_dEdx_wires_error",
+            #"pfcand_dEdx_pads_type", "pfcand_dEdx_pads_value", "pfcand_dEdx_pads_error",
+            #"pfcand_dEdx_wires_type", "pfcand_dEdx_wires_value", "pfcand_dEdx_wires_error",
                
                 
             "pfcand_isMu", "pfcand_isEl", "pfcand_isChargedHad", "pfcand_isGamma", "pfcand_isNeutralHad",
