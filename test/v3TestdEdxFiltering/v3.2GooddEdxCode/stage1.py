@@ -170,9 +170,9 @@ class RDFanalysis:
                "RecoParticles, _RecoParticles_tracks.index,"
                "dEdxPads, _dEdxPads_track.index,"
                "_jetc, 1)")
-        df = df.Define("pfcand_dEdx_el_value_good",
+        df = df.Define("pfcand_dEdx_el_value_pads",
                "AlephSelection::get_good_dEdx_value(pfcand_dEdx_pads_el)")
-        df = df.Define("pfcand_dEdx_el_error_good",
+        df = df.Define("pfcand_dEdx_el_error_pads",
                "AlephSelection::get_good_dEdx_error(pfcand_dEdx_pads_el)")
 
 
@@ -184,9 +184,9 @@ class RDFanalysis:
                "RecoParticles, _RecoParticles_tracks.index,"
                "dEdxWires, _dEdxWires_track.index,"
                "_jetc, 1)")
-        df = df.Define("pfcand_dEdx_el_wire_value_good",
+        df = df.Define("pfcand_dEdx_el_wires_value",
                "AlephSelection::get_good_dEdx_value(pfcand_dEdx_wires_el)")
-        df = df.Define("pfcand_dEdx_el_wire_error_good",
+        df = df.Define("pfcand_dEdx_el_wires_error",
                "AlephSelection::get_good_dEdx_error(pfcand_dEdx_wires_el)")
 
 
@@ -199,9 +199,9 @@ class RDFanalysis:
                "RecoParticles, _RecoParticles_tracks.index,"
                "dEdxPads, _dEdxPads_track.index,"
                "_jetc, 2)")
-        df = df.Define("pfcand_dEdx_mu_value_good",
+        df = df.Define("pfcand_dEdx_mu_value_pads",
                "AlephSelection::get_good_dEdx_value(pfcand_dEdx_pads_mu)")
-        df = df.Define("pfcand_dEdx_mu_error_good",
+        df = df.Define("pfcand_dEdx_mu_error_pads",
                "AlephSelection::get_good_dEdx_error(pfcand_dEdx_pads_mu)")
 
 
@@ -213,9 +213,9 @@ class RDFanalysis:
                "RecoParticles, _RecoParticles_tracks.index,"
                "dEdxWires, _dEdxWires_track.index,"
                "_jetc, 2)")
-        df = df.Define("pfcand_dEdx_mu_wire_value_good",
+        df = df.Define("pfcand_dEdx_mu_wires_value",
                "AlephSelection::get_good_dEdx_value(pfcand_dEdx_wires_mu)")
-        df = df.Define("pfcand_dEdx_mu_wire_error_good",
+        df = df.Define("pfcand_dEdx_mu_wires_error",
                "AlephSelection::get_good_dEdx_error(pfcand_dEdx_wires_mu)")
 
 
@@ -228,9 +228,9 @@ class RDFanalysis:
                "RecoParticles, _RecoParticles_tracks.index,"
                "dEdxPads, _dEdxPads_track.index,"
                "_jetc, 0)")
-        df = df.Define("pfcand_dEdx_ch_value_good",
+        df = df.Define("pfcand_dEdx_ch_value_pads",
                "AlephSelection::get_good_dEdx_value(pfcand_dEdx_pads_ch)");
-        df = df.Define("pfcand_dEdx_ch_error_good",
+        df = df.Define("pfcand_dEdx_ch_error_pads",
                "AlephSelection::get_good_dEdx_error(pfcand_dEdx_pads_ch)");
 
 
@@ -242,9 +242,9 @@ class RDFanalysis:
                "RecoParticles, _RecoParticles_tracks.index,"
                "dEdxWires, _dEdxWires_track.index,"
                "_jetc, 0)")
-        df = df.Define("pfcand_dEdx_ch_wire_value_good",
+        df = df.Define("pfcand_dEdx_ch_wires_value",
                "AlephSelection::get_good_dEdx_value(pfcand_dEdx_wires_ch)")
-        df = df.Define("pfcand_dEdx_ch_wire_error_good",
+        df = df.Define("pfcand_dEdx_ch_wires_error",
                "AlephSelection::get_good_dEdx_error(pfcand_dEdx_wires_ch)")
 
 
@@ -257,9 +257,9 @@ class RDFanalysis:
                "RecoParticles, _RecoParticles_tracks.index,"
                "dEdxPads, _dEdxPads_track.index,"
                "_jetc, 4)")
-        df = df.Define("pfcand_dEdx_ph_value_good",
+        df = df.Define("pfcand_dEdx_ph_value_pads",
                "AlephSelection::get_good_dEdx_value(pfcand_dEdx_pads_ph)")
-        df = df.Define("pfcand_dEdx_ph_error_good",
+        df = df.Define("pfcand_dEdx_ph_error_pads",
                "AlephSelection::get_good_dEdx_error(pfcand_dEdx_pads_ph)")
 
 
@@ -271,9 +271,9 @@ class RDFanalysis:
                "RecoParticles, _RecoParticles_tracks.index,"
                "dEdxWires, _dEdxWires_track.index,"
                "_jetc, 4)")
-        df = df.Define("pfcand_dEdx_ph_wire_value_good",
+        df = df.Define("pfcand_dEdx_ph_wires_value",
                "AlephSelection::get_good_dEdx_value(pfcand_dEdx_wires_ph)")
-        df = df.Define("pfcand_dEdx_ph_wire_error_good",
+        df = df.Define("pfcand_dEdx_ph_wires_error",
                "AlephSelection::get_good_dEdx_error(pfcand_dEdx_wires_ph)")
 
 
@@ -286,9 +286,9 @@ class RDFanalysis:
                "RecoParticles, _RecoParticles_tracks.index,"
                "dEdxPads, _dEdxPads_track.index,"
                "_jetc, 5)")
-        df = df.Define("pfcand_dEdx_nh_value_good",
+        df = df.Define("pfcand_dEdx_nh_value_pads",
                "AlephSelection::get_good_dEdx_value(pfcand_dEdx_pads_nh)")
-        df = df.Define("pfcand_dEdx_nh_error_good",
+        df = df.Define("pfcand_dEdx_nh_error_pads",
                "AlephSelection::get_good_dEdx_error(pfcand_dEdx_pads_nh)")
 
 
@@ -300,9 +300,9 @@ class RDFanalysis:
                "RecoParticles, _RecoParticles_tracks.index,"
                "dEdxWires, _dEdxWires_track.index,"
                "_jetc, 5)")
-        df = df.Define("pfcand_dEdx_nh_wire_value_good",
+        df = df.Define("pfcand_dEdx_nh_wires_value",
                "AlephSelection::get_good_dEdx_value(pfcand_dEdx_wires_nh)")
-        df = df.Define("pfcand_dEdx_nh_wire_error_good",
+        df = df.Define("pfcand_dEdx_nh_wires_error",
                "AlephSelection::get_good_dEdx_error(pfcand_dEdx_wires_nh)")
 
 
@@ -315,28 +315,28 @@ class RDFanalysis:
             ### Event Level Variables
 
  # Pads
-    "pfcand_dEdx_el_value_good",
-    "pfcand_dEdx_mu_value_good",
-    "pfcand_dEdx_ch_value_good",
-    "pfcand_dEdx_ph_value_good",
-    "pfcand_dEdx_nh_value_good",
-    "pfcand_dEdx_el_error_good",
-    "pfcand_dEdx_mu_error_good",
-    "pfcand_dEdx_ch_error_good",
-    "pfcand_dEdx_ph_error_good",
-    "pfcand_dEdx_nh_error_good",
+    "pfcand_dEdx_el_value_pads",
+    "pfcand_dEdx_mu_value_pads",
+    "pfcand_dEdx_ch_value_pads",
+    "pfcand_dEdx_ph_value_pads",
+    "pfcand_dEdx_nh_value_pads",
+    "pfcand_dEdx_el_error_pads",
+    "pfcand_dEdx_mu_error_pads",
+    "pfcand_dEdx_ch_error_pads",
+    "pfcand_dEdx_ph_error_pads",
+    "pfcand_dEdx_nh_error_pads",
     
     # Wires
-    "pfcand_dEdx_el_wire_value_good",
-    "pfcand_dEdx_mu_wire_value_good",
-    "pfcand_dEdx_ch_wire_value_good",
-    "pfcand_dEdx_ph_wire_value_good",
-    "pfcand_dEdx_nh_wire_value_good",
-    "pfcand_dEdx_el_wire_error_good",
-    "pfcand_dEdx_mu_wire_error_good",
-    "pfcand_dEdx_ch_wire_error_good",
-    "pfcand_dEdx_ph_wire_error_good",
-    "pfcand_dEdx_nh_wire_error_good",
+    "pfcand_dEdx_el_wires_value",
+    "pfcand_dEdx_mu_wires_value",
+    "pfcand_dEdx_ch_wires_value",
+    "pfcand_dEdx_ph_wires_value",
+    "pfcand_dEdx_nh_wires_value",
+    "pfcand_dEdx_el_wires_error",
+    "pfcand_dEdx_mu_wires_error",
+    "pfcand_dEdx_ch_wires_error",
+    "pfcand_dEdx_ph_wires_error",
+    "pfcand_dEdx_nh_wires_error",
 
             "event_invariant_mass","event_njet",  
 
