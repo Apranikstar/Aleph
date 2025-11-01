@@ -204,7 +204,9 @@ struct build_constituents_dEdx_filtered {
 
         // Default dEdx placeholder
         edm4hep::RecDqdxData default_dEdx;
-        default_dEdx.dqdx = -9.0;
+        //default_dEdx.dqdx = -9.0;
+        default_dEdx.dQdx.value = -9.0;
+        default_dEdx.dQdx.error = -9.0;
 
         // Loop over jets
         for (size_t j = 0; j < jet_indices.size(); ++j) {
