@@ -62,8 +62,6 @@ class RDFanalysis:
         #df = df.Filter("event_type == 2") # d-quark: 1, u-quark:2, s-quark:3, c-quark:4, b-quark: 5
 
         # ===== VERTEX
-        # MC primary vertex
-        #df = df.Define("pv", f'AlephSelection::get_EventPrimaryVertexP4()({coll["GenParticles"]})')
         df = df.Define(
             "pv",
             "TLorentzVector(Vertices[0].position.x, Vertices[0].position.y, Vertices[0].position.z, 0.0)",
