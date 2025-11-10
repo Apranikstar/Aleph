@@ -179,14 +179,14 @@ class RDFanalysis:
         df = df.Define("dEdxWiresError" , "dEdxPads.dQdx.error")
 
         df = df.Define("jet_constituents_dEdx_pads_objs", "AlephSelection::build_constituents_dEdx()(RecoParticles, _RecoParticles_tracks.index, dEdxPads, _dEdxPads_track.index, _jetc)" )
-        df = df.Define("jet_constituents_dEdx_pads_type", "AlephSelection::get_dEdx_type(jet_constituents_dEdx_pads_objs)")
-        df = df.Define("jet_constituents_dEdx_pads_value", "AlephSelection::get_dEdx_value(jet_constituents_dEdx_pads_objs)")
-        df = df.Define("jet_constituents_dEdx_pads_error", "AlephSelection::get_dEdx_error(jet_constituents_dEdx_pads_objs)")
+        df = df.Define("pfcand_dEdx_pads_type", "AlephSelection::get_dEdx_type(jet_constituents_dEdx_pads_objs)")
+        df = df.Define("pfcand_dEdx_pads_value", "AlephSelection::get_dEdx_value(jet_constituents_dEdx_pads_objs)")
+        df = df.Define("pfcand_dEdx_pads_error", "AlephSelection::get_dEdx_error(jet_constituents_dEdx_pads_objs)")
 
         df = df.Define("jet_constituents_dEdx_wires_objs", "AlephSelection::build_constituents_dEdx()(RecoParticles, _RecoParticles_tracks.index, dEdxWires, _dEdxWires_track.index, _jetc)" )
-        df = df.Define("jet_constituents_dEdx_wires_type", "AlephSelection::get_dEdx_type(jet_constituents_dEdx_wires_objs)")
-        df = df.Define("jet_constituents_dEdx_wires_value", "AlephSelection::get_dEdx_value(jet_constituents_dEdx_wires_objs)")
-        df = df.Define("jet_constituents_dEdx_wires_error", "AlephSelection::get_dEdx_error(jet_constituents_dEdx_wires_objs)")
+        df = df.Define("pfcand_dEdx_wires_type", "AlephSelection::get_dEdx_type(jet_constituents_dEdx_wires_objs)")
+        df = df.Define("pfcand_dEdx_wires_value", "AlephSelection::get_dEdx_value(jet_constituents_dEdx_wires_objs)")
+        df = df.Define("pfcand_dEdx_wires_error", "AlephSelection::get_dEdx_error(jet_constituents_dEdx_wires_objs)")
 
 
         return df
@@ -199,8 +199,8 @@ class RDFanalysis:
             "jet_mass","jet_p","jet_e", "jet_phi", "jet_theta", "jet_pT",
             "dEdxPadsValue", "dEdxPadsError", "dEdxWiresValue", "dEdxWiresError",
             #the dEdX values associated to the jet constituents:
-            "jet_constituents_dEdx_pads_type", "jet_constituents_dEdx_pads_value", "jet_constituents_dEdx_pads_error",
-            "jet_constituents_dEdx_wires_type", "jet_constituents_dEdx_wires_value", "jet_constituents_dEdx_wires_error",
+            "pfcand_dEdx_pads_type", "pfcand_dEdx_pads_value", "pfcand_dEdx_pads_error",
+            "pfcand_dEdx_wires_type", "pfcand_dEdx_wires_value", "pfcand_dEdx_wires_error",
                
                 "jet_p_leading",
                 "jet_e_leading",
