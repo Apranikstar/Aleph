@@ -4,7 +4,7 @@ processList = {
 }
 
 
-outputDir = "/eos/user/h/hfatehi/alephdata"
+outputDir = "./output/"
 inputDir = "/eos/experiment/fcc/ee/analyses/case-studies/aleph/LEP1_DATA/"
 nCPUS = -1
 includePaths = ["analyzer.h"]
