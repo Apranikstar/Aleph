@@ -77,6 +77,28 @@ float getJetPID(const ROOT::VecOps::RVec<uint32_t>& ClassBit,
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 
+/// Filters events based on their class bit (RVec-compatible)
+struct sel_class_filter {
+  const int m_class;
+  sel_class_filter(int arg_class) : m_class(arg_class) {};
+
+  bool operator()(const ROOT::VecOps::RVec<uint32_t>& bitset_coll) const {
+    if (bitset_coll.empty()) return false;
+    std::bitset<32> bits(bitset_coll[0]);
+    return bits[m_class - 1];
+  }
+};
+
+/// Filters events by run number (RVec-compatible)
+struct sel_runs_filter {
+  const std::set<int>& m_runs_set;
+  sel_runs_filter(const std::set<int>& arg_runs_set) : m_runs_set(arg_runs_set) {};
+
+  bool operator()(const ROOT::VecOps::RVec<edm4hep::EventHeader>& event_header) const {
+    if (event_header.empty()) return false;
+    return m_runs_set.count(event_header[0].getRunNumber()) > 0;
+  }
+};
 
 
 
