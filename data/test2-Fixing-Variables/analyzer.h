@@ -186,49 +186,61 @@ TLorentzVector get_EventPrimaryVertexP4(const ROOT::VecOps::RVec<edm4hep::MCPart
 
 
 
-struct build_constituents_dEdx{
+struct build_constituents_dEdx_filtered {
     rv::RVec<rv::RVec<edm4hep::RecDqdxData>>
-    operator()(const rv::RVec<edm4hep::ReconstructedParticleData> &recoParticles,
-             const rv::RVec<int> &_recoParticlesIndices,
-             const rv::RVec<edm4hep::RecDqdxData> &dEdxCollection,
-             const rv::RVec<int> &_dEdxIndicesCollection, 
-             const std::vector<std::vector<int>> &jet_indices) const
-    { 
-        rv::RVec<rv::RVec<edm4hep::RecDqdxData>> dedx_constituents;
+    operator()(const rv::RVec<FCCAnalysesJetConstituentsData> &jet_constituents_types,
+               const rv::RVec<edm4hep::ReconstructedParticleData> &recoParticles,
+               const rv::RVec<int> &_recoParticlesIndices,
+               const rv::RVec<edm4hep::RecDqdxData> &dEdxCollection,
+               const rv::RVec<int> &_dEdxIndicesCollection,
+               const std::vector<std::vector<int>> &jet_indices
+               ) const {
 
-        // The links dEdx -> Track and RecoPart -> Track are one-directional, we need a map to store
-        // Track.index -> dEdx to not have to loop everytime 
-        // in addition, the object itself is stored in <Collection>
-        // while the relations (=indices we need for links) are on _<Collection>
+        rv::RVec<rv::RVec<edm4hep::RecDqdxData>> dedx_filtered;
+
+        // Build map Track.index -> dEdx object
         std::unordered_map<int, edm4hep::RecDqdxData> track_index_to_dEdx;
         for (size_t i = 0; i < _dEdxIndicesCollection.size(); ++i) {
-          int track_index = _dEdxIndicesCollection[i];
-          edm4hep::RecDqdxData dedx_value = dEdxCollection[i];
-          track_index_to_dEdx[track_index] = dedx_value;
+            track_index_to_dEdx[_dEdxIndicesCollection[i]] = dEdxCollection[i];
         }
 
-        //now, for each jet loop over the indices of the jet constituents provided by teh JetClusteringUtils
-        // retrieve the associated RecoParticle
-        // from there get the link to the Track from the corresponding index collection
-        for (const auto &jet_const_indices : jet_indices) { //loop over jets
-          rv::RVec<edm4hep::RecDqdxData> jet_dEdx;
+        // Default dEdx placeholder
+        edm4hep::RecDqdxData default_dEdx;
+        //default_dEdx.dqdx = -9.0;
+        default_dEdx.dQdx.value = -9.0;
+        default_dEdx.dQdx.error = -9.0;
 
-          for (int constituent_index : jet_const_indices) { // loop over jet constituents
-            const auto &recoPart = recoParticles[constituent_index];
+        // Loop over jets
+        for (size_t j = 0; j < jet_indices.size(); ++j) {
+            const auto &constituents = jet_indices[j];
+            const auto &types = jet_constituents_types[j];
 
-            //loop over tracks associated to the RecoPart (should always be one in Aleph data)
-            for (int track = recoPart.tracks_begin; track < recoPart.tracks_end; ++track) {
-                 int track_index = _recoParticlesIndices[track]; //this should be the same index used in the link from dEdx to track
+            rv::RVec<edm4hep::RecDqdxData> jet_dEdx_masked;
 
-                  //find the matching dEdx in the map
-                  if (track_index_to_dEdx.count(track_index)) {
-                    jet_dEdx.push_back(track_index_to_dEdx[track_index]);
-                  }
+            // Loop over jet constituents
+            for (size_t c = 0; c < constituents.size(); ++c) {
+                int rp_index = constituents[c];
+                const auto &recoPart = recoParticles[rp_index];
+
+                // If type is 4 or 5, use placeholder
+                if (types[c] == 4 || types[c] == 5) {
+                    jet_dEdx_masked.push_back(default_dEdx);
+                    continue;
+                }
+
+                // Otherwise, link to track dEdx
+                for (int t = recoPart.tracks_begin; t < recoPart.tracks_end; ++t) {
+                    int track_index = _recoParticlesIndices[t];
+                    if (track_index_to_dEdx.count(track_index)) {
+                        jet_dEdx_masked.push_back(track_index_to_dEdx[track_index]);
+                    }
+                }
             }
-          }
-          dedx_constituents.push_back(jet_dEdx); 
+
+            dedx_filtered.emplace_back(std::move(jet_dEdx_masked));
         }
-        return dedx_constituents;
+
+        return dedx_filtered;
     }
 };
 
