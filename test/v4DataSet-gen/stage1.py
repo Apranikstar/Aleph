@@ -1,6 +1,6 @@
 processList = {
 
-"QQB" : {"fraction" : 0.001},           
+"Zbb" : {"fraction" : 0.001},           
 }
 
 
@@ -62,7 +62,12 @@ class RDFanalysis:
 
         # ===== VERTEX
         # MC primary vertex
-        df = df.Define("pv", f'AlephSelection::get_EventPrimaryVertexP4({coll["GenParticles"]})')
+        
+        #df = df.Define("pv", f'AlephSelection::get_EventPrimaryVertexP4({coll["GenParticles"]})')
+        # Reco Primary Vertiex
+        df = df.Define(
+            "pv",
+            "TLorentzVector(Vertices[0].position.x, Vertices[0].position.y, Vertices[0].position.z, 0.0)",
         ############################################# Particle Flow Level Variables #######################################################
 
 
