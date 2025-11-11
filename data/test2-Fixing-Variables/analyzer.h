@@ -185,7 +185,7 @@ TLorentzVector get_EventPrimaryVertexP4(const ROOT::VecOps::RVec<edm4hep::MCPart
 // -----------------------------------
 
 
-
+// For dEdx of neutral hadrons or photons returns a -9
 struct build_constituents_dEdx_filtered {
     rv::RVec<rv::RVec<edm4hep::RecDqdxData>>
     operator()(const rv::RVec<FCCAnalysesJetConstituentsData> &jet_constituents_types,
