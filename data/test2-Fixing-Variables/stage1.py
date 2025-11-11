@@ -162,15 +162,13 @@ class RDFanalysis:
 
 
 
-          df = df.Define("pfcand_dEdx_pads_objs", "AlephSelection::build_constituents_dEdx()(RecoParticles, _RecoParticles_tracks.index, dEdxPads, _dEdxPads_track.index, _jetc)" )
-        df = df.Define("pfcand_dEdx_pads_type", "AlephSelection::get_dEdx_type(pfcand_dEdx_pads_objs)")
-        df = df.Define("pfcand_dEdx_pads_value", "AlephSelection::get_dEdx_value(pfcand_dEdx_pads_objs)")
-        df = df.Define("pfcand_dEdx_pads_error", "AlephSelection::get_dEdx_error(pfcand_dEdx_pads_objs)")
+        df = df.Define("pfcand_dEdx_pads_objs", "AlephSelection::build_constituents_dEdx()(RecoParticles, _RecoParticles_tracks.index, dEdxPads, _dEdxPads_track.index, _jetc)" )
+        df = df.Define("pfcand_dEdx_pads_value", "AlephSelection::get_good_dEdx_value(pfcand_dEdx_pads_objs)")
+        df = df.Define("pfcand_dEdx_pads_error", "AlephSelection::get_good_dEdx_error(pfcand_dEdx_pads_objs)")
 
         df = df.Define("pfcand_dEdx_wires_objs", "AlephSelection::build_constituents_dEdx()(RecoParticles, _RecoParticles_tracks.index, dEdxWires, _dEdxWires_track.index, _jetc)" )
-        df = df.Define("pfcand_dEdx_wires_type", "AlephSelection::get_dEdx_type(pfcand_dEdx_wires_objs)")
-        df = df.Define("pfcand_dEdx_wires_value", "AlephSelection::get_dEdx_value(pfcand_dEdx_wires_objs)")
-        df = df.Define("pfcand_dEdx_wires_error", "AlephSelection::get_dEdx_error(pfcand_dEdx_wires_objs)")
+        df = df.Define("pfcand_dEdx_wires_value", "AlephSelection::get_good_dEdx_value(pfcand_dEdx_wires_objs)")
+        df = df.Define("pfcand_dEdx_wires_error", "AlephSelection::get_good_dEdx_error(pfcand_dEdx_wires_objs)")
 
 
         return df
@@ -181,8 +179,8 @@ class RDFanalysis:
                 
                     "event_invariant_mass","event_njet",  
                     #the dEdX values associated to the jet constituents:
-                    "pfcand_dEdx_pads_type", "pfcand_dEdx_pads_value", "pfcand_dEdx_pads_error",
-                    "pfcand_dEdx_wires_type", "pfcand_dEdx_wires_value", "pfcand_dEdx_wires_error",
+                     "pfcand_dEdx_pads_value", "pfcand_dEdx_pads_error",
+                     "pfcand_dEdx_wires_value", "pfcand_dEdx_wires_error",
                     # Jet Level Variables
                     "jet_mass","jet_e",
                     "jet_phi", "jet_theta", "jet_eta", 
@@ -190,7 +188,7 @@ class RDFanalysis:
                 
                     "jet_nnhad","jet_ngamma","jet_nchad","jet_nel", "jet_nmu", "jet_nconst",
                 
-                     "pfcand_isMu", "pfcand_isEl", "pfcand_isChargedHad", "pfcand_isGamma", "pfcand_isNeutralHad",
+                    "pfcand_isMu", "pfcand_isEl", "pfcand_isChargedHad", "pfcand_isGamma", "pfcand_isNeutralHad",
                     "pfcand_e", "pfcand_p", "pfcand_theta", "pfcand_phi", "pfcand_charge", "pfcand_type",
                     "pfcand_erel", "pfcand_erel_log", "pfcand_thetarel", "pfcand_phirel", 
  
