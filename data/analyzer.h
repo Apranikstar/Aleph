@@ -420,6 +420,18 @@ rv::RVec<rv::RVec<float>> get_dEdx_error(const rv::RVec<rv::RVec<edm4hep::RecDqd
   return values;
 }
 
+// Return a new collection (same type) with D0 signs flipped.
+ROOT::VecOps::RVec<edm4hep::TrackState>
+flipD0_copy(const ROOT::VecOps::RVec<edm4hep::TrackState>& tracks) {
+  ROOT::VecOps::RVec<edm4hep::TrackState> out;
+  out.reserve(tracks.size());
+  for (const auto &t : tracks) {
+    edm4hep::TrackState tt = t;   // make a copy
+    tt.D0 = -tt.D0;               // flip sign
+    out.push_back(std::move(tt));
+  }
+  return out;
+}
 
 
 
