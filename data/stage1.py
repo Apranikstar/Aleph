@@ -29,7 +29,7 @@ class RDFanalysis:
 
         df = df.Define("TrackStateFlipped",f"AlephSelection::flipD0_copy( {coll['TrackState']} )")
 
-        df = df.Filter("AlephSelection::sel_class_filter(16)(ClassBitset)  || AlephSelection::sel_class_filter(17)(ClassBitset) ")
+        df = df.Filter("AlephSelection::sel_class_filter(16)(ClassBitset) ")
 
 
         # Define RP kinematics
