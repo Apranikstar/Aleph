@@ -29,3 +29,11 @@ Zqq_data_MC_vars = {
 
 	
 }
+
+Zqq_data_MC_inference = {
+	"dijet_score":PlotSpecs(name="dijet_score", xmin=0, xmax=1, label="B-jet score product", nbins=50),
+	"dijet_score_coarse":PlotSpecs(name="dijet_score", xmin=0, xmax=1, label="B-jet score product", nbins=25),
+	"dijet_score_coarsest":PlotSpecs(name="dijet_score", xmin=0, xmax=1, label="B-jet score product", nbins=10),
+	"dijet_score_luka":PlotSpecs(name="dijet_score", xmin=0, xmax=1, label="B-jet score product", nbins=20),
+	
+}

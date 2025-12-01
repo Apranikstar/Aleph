@@ -9,7 +9,8 @@ import numpy
 from argparse import ArgumentParser
 import json
 
-from plotting_config_stage1 import PlottingConfig
+# from plotting_config_stage1 import PlottingConfig
+from plotting_config_inference import PlottingConfig
 
 ROOT.gROOT.SetBatch()
 ROOT.gStyle.SetOptTitle(0)
@@ -190,7 +191,7 @@ def get_hist_from_tree(proc_name, input_filepath, hist_var, hist_nbins, hist_xmi
     return hist_to_add
 
 # function to draw all the things #todo: add back support for applying extra cut?
-def make_plot(plot, input_dir, data_proc, mc_processes, out_dir_base, 
+def make_plot(plot_name, plot, input_dir, data_proc, mc_processes, out_dir_base, 
               year="", sel_tag ="", lumi=1., ecm=1., norm_file=None,
               do_log_y=True, add_overflow=False, fix_ratio_range=(), weighted=False,
               out_format = ".png", store_root_file=False,   
@@ -295,7 +296,8 @@ def make_plot(plot, input_dir, data_proc, mc_processes, out_dir_base,
 
     #axes:
     mc_stack.SetMinimum(1.e0)
-    mc_stack.SetMaximum(1.e7)
+    mc_stack.SetMaximum(1.e10) #MAKE INPUT ARGUMENT
+    # mc_stack.SetMaximum(1.e7)
     mc_stack.GetYaxis().SetTitle("Events")
     mc_stack.GetXaxis().SetLabelSize(0)
     data_hist.GetXaxis().SetTitle(plot.label)
@@ -355,9 +357,9 @@ def make_plot(plot, input_dir, data_proc, mc_processes, out_dir_base,
         os.makedirs(out_dir_base)
 
     if weighted:
-        filename = f"hists_{plot.name}_weighted"
+        filename = f"hists_{plot_name}_weighted"
     else:
-        filename = f"hists_{plot.name}"
+        filename = f"hists_{plot_name}"
     
     if do_log_y:
         filename+="_logY"
@@ -371,7 +373,7 @@ def make_plot(plot, input_dir, data_proc, mc_processes, out_dir_base,
 
     #write out a root file for use in e.g. WS building if requested:
     if store_root_file:
-        out_filepath = os.path.join(out_dir_base, f"histograms_{plot.name}.root")
+        out_filepath = os.path.join(out_dir_base, f"histograms_{plot_name}.root")
 
         fileout = ROOT.TFile(out_filepath, "RECREATE")
         fileout.cd()
@@ -398,7 +400,7 @@ if __name__ == "__main__":
 
     # loop over all plots : check the config imported for details
     for plot_name, plot_specs in PlottingConfig.plots_dict.items():
-        make_plot(plot_specs, PlottingConfig.inputs_path, PlottingConfig.data, PlottingConfig.mc_processes, PlottingConfig.outputs_path, 
+        make_plot(plot_name, plot_specs, PlottingConfig.inputs_path, PlottingConfig.data, PlottingConfig.mc_processes, PlottingConfig.outputs_path, 
               year=PlottingConfig.year, sel_tag =PlottingConfig.sel_tag, lumi=PlottingConfig.lumi, ecm=PlottingConfig.ecm, norm_file=PlottingConfig.norm_file,
               do_log_y=PlottingConfig.do_log_y, add_overflow=PlottingConfig.add_overflow, fix_ratio_range=PlottingConfig.ratio_range, 
               weighted=PlottingConfig.weighted, out_format=PlottingConfig.out_format, store_root_file=PlottingConfig.store_root_file
