@@ -18,6 +18,8 @@ class Analysis():
         parser.add_argument('--MCflavour', default=None, type=str,
                             help='For MC only: filter out events based on truth quark flavours. Default is none. Options: \
                             1 = dd, 2 = uu, 3 = ss, 4 = cc, 5 = bb')
+        parser.add_argument('--fraction', default=1.0, type=float,
+                            help='Fraction of events to run, default is 1.0 = 100%')
         # Parse additional arguments not known to the FCCAnalyses parsers
         # All command line arguments know to fccanalysis are provided in the
         # `cmdline_arg` dictionary.
@@ -64,7 +66,7 @@ class Analysis():
             self.output_dir = f"/eos/experiment/fcc/ee/analyses/case-studies/aleph/processedData/{self.ana_args.year}/stage1/{self.ana_args.tag}"
             
             self.process_list = {
-                "1994" : {"fraction" : 0.01},           
+                "1994" : {"fraction" : self.ana_args.fraction},           
             }  
 
         else:
@@ -75,7 +77,7 @@ class Analysis():
             output_name = outnames_dict[self.ana_args.MCtype][self.ana_args.MCflavour]
 
             self.process_list = {
-                "QQB" : {"fraction" : 0.01, "output":output_name},           
+                "QQB" : {"fraction" : self.ana_args.fraction, "output":output_name},           
             }
 
         #set run options:

@@ -17,13 +17,15 @@ Note: Change the data fraction based on your needs.
 
 ### Run on MC:
 ```bash
-fccanalysis run stage1.py -- --tag <version_tag> 
+fccanalysis run stage1.py -- --tag <version_tag>  --MCflavour <flavour_index>
 ```
 
 Output files will be in: 
-`/eos/experiment/fcc/ee/analyses/case-studies/aleph/processedMC/<year>/<mc_type>/stage1/<version_tag>`. 
+`/eos/experiment/fcc/ee/analyses/case-studies/aleph/processedMC/<year>/<mc_type>/stage1/<version_tag>/<flavour_name>.root`. 
 
-`<year>` and `<mc_type>` are also supported command line arguments, currently we only have `1994` and `zqq` here. 
+Fraction of events to process can be set via `--fraction <val>`, default is to process all events. 
+
+`--year <year>` and `--MCtype <type>` are also supported command line arguments, currently we only have `1994` and `zqq` here. 
 
 ### Run on data:
 ```bash
@@ -32,5 +34,5 @@ fccanalysis run stage1.py -- --tag <version_tag> --doData
 
 Output files will be in: `/eos/experiment/fcc/ee/analyses/case-studies/aleph/processedData/<year>/stage1/<version_tag>/`
 
-`<year>` is also supported as an argument here. 
+`--year` and `--fraction` is also supported as an argument here. 
 
