@@ -2,11 +2,13 @@
 
 import ROOT
 import os 
+import sys
 from collections import namedtuple
 from array import array
 import copy
 import numpy
 from argparse import ArgumentParser
+import importlib
 import json
 
 # from plotting_config_stage1 import PlottingConfig
@@ -394,9 +396,29 @@ def make_plot(plot_name, plot, input_dir, data_proc, mc_processes, out_dir_base,
         print("Wrote root file with histograms to:", out_filepath)
 
         fileout.Close()
+    
+def load_config_module(module_name: str):
+    try:
+        return importlib.import_module(module_name)
+    except ModuleNotFoundError:
+        print(f"ERROR: Config module '{module_name}' not found.")
+        sys.exit(1)
      
 
 if __name__ == "__main__":
+
+    parser = ArgumentParser()
+    parser.add_argument("-c", "--config", type=str, required=True, help="Name of the plotting config module (e.g. 'plotting_config_stage1')")
+    args = parser.parse_args()
+
+    #check the config file has a PlottingConfig class, and if yes import
+    config_module = load_config_module(args.config)
+
+    if not hasattr(config_module, "PlottingConfig"):
+        print(f"ERROR: Module '{config_module.__name__}' does not contain a 'PlottingConfig' class.")
+        sys.exit(1)
+
+    PlottingConfig = config_module.PlottingConfig
 
     # loop over all plots : check the config imported for details
     for plot_name, plot_specs in PlottingConfig.plots_dict.items():
