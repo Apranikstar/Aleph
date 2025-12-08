@@ -205,7 +205,7 @@ class Analysis():
         ############################################# Jet Level Variables and selection #######################################################
         
         df=df.Define("event_njet",   "JetConstituentsUtils::count_jets(jetc)")
-        df.Filter("event_njet > 1")
+        df = df.Filter("event_njet > 1")
 
         ##############################################################################################################
         df = df.Define("sumTLVs", "JetConstituentsUtils::sum_tlv_constituents(jetc)")
