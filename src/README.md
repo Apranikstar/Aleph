@@ -36,3 +36,17 @@ Output files will be in: `/eos/experiment/fcc/ee/analyses/case-studies/aleph/pro
 
 `--year` and `--fraction` is also supported as an argument here. 
 
+
+
+### STAGE 2:
+
+Don't touch stage2.py!
+Open up stage2_all.py and change the desired input and output directories. 
+Set the number of cpus.
+Now you can decide if you want to divide each flavor into multiple files, then you can change the argument `n_final_files`.
+Run it with nightlies.
+
+
+
+
+
