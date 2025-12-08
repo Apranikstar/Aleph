@@ -5,7 +5,7 @@ Version of the FCCAnalyses code that supports command line arguments, to be able
 ## Setup
 ```bash
 git clone https://github.com/Apranikstar/Aleph.git
-cd Aleph/data/
+cd Aleph/src/
 source /cvmfs/sw-nightlies.hsf.org/key4hep/setup.sh
 ```
 
