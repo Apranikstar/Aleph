@@ -5,6 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 import uproot
 import glob
 from math import ceil
+import re
 
 # --- user configuration ---
 input_dir = "./output"
@@ -24,6 +25,13 @@ def get_nentries(root_file):
         tree = f[tree_name]
         return tree.num_entries
 
+def natural_sort_key(filename):
+    """Extract the part number for proper numerical sorting."""
+    match = re.search(r'_part(\d+)\.root$', filename)
+    if match:
+        return int(match.group(1))
+    return 0
+
 def build_jobs():
     """Prepare all (command, label) jobs across input ROOT files."""
     jobs = []
@@ -32,10 +40,9 @@ def build_jobs():
             continue
         input_path = os.path.join(input_dir, filename)
         base = os.path.splitext(filename)[0]
-
         n_entries = get_nentries(input_path)
         chunk_size = (n_entries + ncpus - 1) // ncpus
-
+        
         for i in range(ncpus):
             start = i * chunk_size
             end = min((i + 1) * chunk_size, n_entries)
@@ -60,24 +67,41 @@ def run_job(job):
 def merge_outputs():
     """Merge _part*.root files into a user-defined number of final files per sample."""
     print("\n=== Merging output parts per sample ===")
+    
     for filename in os.listdir(input_dir):
         if not filename.endswith(".root"):
             continue
         base = os.path.splitext(filename)[0]
-        part_files = sorted(glob.glob(os.path.join(output_dir, f"{base}_part*.root")))
+        
+        # Get part files and sort them numerically by part number
+        part_files = glob.glob(os.path.join(output_dir, f"{base}_part*.root"))
+        part_files = sorted(part_files, key=natural_sort_key)
+        
         if not part_files:
             continue
-
+        
+        print(f"\nProcessing sample: {base}")
+        print(f"Found {len(part_files)} part files in sequential order:")
+        for pf in part_files:
+            print(f"  - {os.path.basename(pf)}")
+        
         # split part_files into n_final_files chunks
         chunk_size = ceil(len(part_files) / n_final_files)
+        
         for i in range(n_final_files):
             chunk_files = part_files[i*chunk_size:(i+1)*chunk_size]
             if not chunk_files:
                 continue
+            
             merged_file = os.path.join(output_dir, f"{base}_s2_{i}.root")
-            print(f"Merging {len(chunk_files)} parts → {merged_file}")
+            print(f"\nMerging chunk {i} ({len(chunk_files)} files) → {merged_file}")
+            print(f"Sequential order for this chunk:")
+            for cf in chunk_files:
+                print(f"  - {os.path.basename(cf)}")
+            
             cmd = ["hadd", "-f", merged_file] + chunk_files
             result = subprocess.run(cmd, capture_output=True, text=True)
+            
             if result.returncode != 0:
                 print(f"[ERROR] Failed to merge {base} chunk {i}: {result.stderr.strip()}")
             else:
@@ -86,22 +110,24 @@ def merge_outputs():
                     for f in chunk_files:
                         try:
                             os.remove(f)
+                            print(f"  Removed: {os.path.basename(f)}")
                         except Exception as e:
                             print(f"Warning: could not remove {f}: {e}")
 
 def main():
     jobs = build_jobs()
     print(f"Prepared {len(jobs)} total jobs across all ROOT files.")
+    
     with ThreadPoolExecutor(max_workers=ncpus) as executor:
         results = list(executor.map(run_job, jobs))
-
+    
     print("\n=== All jobs completed ===")
     failed = sum(1 for r in results if r != 0)
     if failed:
         print(f"{failed} jobs failed.")
     else:
         print("All jobs succeeded.")
-
+    
     merge_outputs()
     print("\nAll done!")
 
