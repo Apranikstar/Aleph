@@ -8,22 +8,26 @@ from math import ceil
 import re
 
 # --- user configuration ---
-input_dir = "./output"
-output_dir = "./output/s2"
+input_dir = "/eos/experiment/fcc/ee/analyses/case-studies/aleph/processedMC/1994/zqq/stage1/1.0.0"
+output_dir = "./output"
 stage2_script = "stage2.py"
-ncpus = 4  # number of parallel threads
-delete_parts_after_merge = True  # set to True to remove part files after merging
-n_final_files = 2  # number of final merged output files per sample
+ncpus = 64  # Use all available threads
+delete_parts_after_merge = True
+n_final_files = 1  # Number of final merged output files per sample
 # ---------------------------
 
 os.makedirs(output_dir, exist_ok=True)
 
 def get_nentries(root_file):
     """Return number of entries in the first TTree of the ROOT file."""
-    with uproot.open(root_file) as f:
-        tree_name = next((k for k in f.keys() if hasattr(f[k], "num_entries")), list(f.keys())[0])
-        tree = f[tree_name]
-        return tree.num_entries
+    try:
+        with uproot.open(root_file) as f:
+            tree_name = next((k for k in f.keys() if hasattr(f[k], "num_entries")), list(f.keys())[0])
+            tree = f[tree_name]
+            return tree.num_entries
+    except Exception as e:
+        print(f"Error reading {root_file}: {e}")
+        return 0
 
 def natural_sort_key(filename):
     """Extract the part number for proper numerical sorting."""
@@ -32,104 +36,130 @@ def natural_sort_key(filename):
         return int(match.group(1))
     return 0
 
-def build_jobs():
-    """Prepare all (command, label) jobs across input ROOT files."""
+def build_jobs_for_sample(filename):
+    """Prepare jobs for a single input ROOT file."""
     jobs = []
-    for filename in os.listdir(input_dir):
-        if not filename.endswith(".root"):
-            continue
-        input_path = os.path.join(input_dir, filename)
-        base = os.path.splitext(filename)[0]
-        n_entries = get_nentries(input_path)
-        chunk_size = (n_entries + ncpus - 1) // ncpus
+    if not filename.endswith(".root"):
+        return jobs
+    
+    input_path = os.path.join(input_dir, filename)
+    base = os.path.splitext(filename)[0]
+    n_entries = get_nentries(input_path)
+    
+    if n_entries == 0:
+        print(f"Skipping {filename} - no entries found")
+        return jobs
         
-        for i in range(ncpus):
-            start = i * chunk_size
-            end = min((i + 1) * chunk_size, n_entries)
-            if start >= end:
-                break
-            output_file = os.path.join(output_dir, f"{base}_part{i}.root")
-            cmd = ["python", stage2_script, input_path, output_file, str(start), str(end)]
-            jobs.append((cmd, f"{base}_part{i}"))
+    chunk_size = (n_entries + ncpus - 1) // ncpus
+    
+    for i in range(ncpus):
+        start = i * chunk_size
+        end = min((i + 1) * chunk_size, n_entries)
+        if start >= end:
+            break
+        output_file = os.path.join(output_dir, f"{base}_part{i}.root")
+        cmd = ["python", stage2_script, input_path, output_file, str(start), str(end)]
+        jobs.append((cmd, f"{base}_part{i}", base))
     return jobs
 
 def run_job(job):
     """Run one job command."""
-    cmd, label = job
+    cmd, label, sample_name = job
     print(f"[START] {label}: {' '.join(cmd)}")
-    result = subprocess.run(cmd, capture_output=True, text=True)
-    if result.returncode != 0:
-        print(f"[ERROR] {label}:\n{result.stderr.strip()}")
-    else:
-        print(f"[DONE] {label}")
-    return result.returncode
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
+        if result.returncode != 0:
+            print(f"[ERROR] {label}:\n{result.stderr.strip()}")
+        else:
+            print(f"[DONE] {label}")
+        return result.returncode, sample_name
+    except subprocess.TimeoutExpired:
+        print(f"[TIMEOUT] {label} - job took longer than 10 minutes")
+        return -1, sample_name
+    except Exception as e:
+        print(f"[EXCEPTION] {label}: {e}")
+        return -1, sample_name
 
-def merge_outputs():
-    """Merge _part*.root files into a user-defined number of final files per sample."""
-    print("\n=== Merging output parts per sample ===")
+def merge_sample(base):
+    """Merge parts for a single sample."""
+    part_files = glob.glob(os.path.join(output_dir, f"{base}_part*.root"))
+    part_files = sorted(part_files, key=natural_sort_key)
     
-    for filename in os.listdir(input_dir):
-        if not filename.endswith(".root"):
+    if not part_files:
+        return
+    
+    print(f"\n{'='*60}")
+    print(f"Merging sample: {base}")
+    print(f"Found {len(part_files)} part files")
+    print(f"Sequential order: {', '.join([f'part{natural_sort_key(f)}' for f in part_files])}")
+    
+    # Split part_files into n_final_files chunks
+    chunk_size = ceil(len(part_files) / n_final_files)
+    
+    for i in range(n_final_files):
+        chunk_files = part_files[i*chunk_size:(i+1)*chunk_size]
+        if not chunk_files:
             continue
-        base = os.path.splitext(filename)[0]
         
-        # Get part files and sort them numerically by part number
-        part_files = glob.glob(os.path.join(output_dir, f"{base}_part*.root"))
-        part_files = sorted(part_files, key=natural_sort_key)
+        merged_file = os.path.join(output_dir, f"{base}_s2_{i}.root")
+        part_range = f"part{natural_sort_key(chunk_files[0])}-part{natural_sort_key(chunk_files[-1])}"
         
-        if not part_files:
-            continue
+        print(f"\n  Chunk {i}: Merging {len(chunk_files)} files ({part_range})")
+        print(f"  Output: {os.path.basename(merged_file)}")
+        print(f"  Files: {' → '.join([os.path.basename(f) for f in chunk_files])}")
         
-        print(f"\nProcessing sample: {base}")
-        print(f"Found {len(part_files)} part files in sequential order:")
-        for pf in part_files:
-            print(f"  - {os.path.basename(pf)}")
+        cmd = ["hadd", "-f", merged_file] + chunk_files
+        result = subprocess.run(cmd, capture_output=True, text=True)
         
-        # split part_files into n_final_files chunks
-        chunk_size = ceil(len(part_files) / n_final_files)
-        
-        for i in range(n_final_files):
-            chunk_files = part_files[i*chunk_size:(i+1)*chunk_size]
-            if not chunk_files:
-                continue
-            
-            merged_file = os.path.join(output_dir, f"{base}_s2_{i}.root")
-            print(f"\nMerging chunk {i} ({len(chunk_files)} files) → {merged_file}")
-            print(f"Sequential order for this chunk:")
-            for cf in chunk_files:
-                print(f"  - {os.path.basename(cf)}")
-            
-            cmd = ["hadd", "-f", merged_file] + chunk_files
-            result = subprocess.run(cmd, capture_output=True, text=True)
-            
-            if result.returncode != 0:
-                print(f"[ERROR] Failed to merge {base} chunk {i}: {result.stderr.strip()}")
-            else:
-                print(f"[OK] {base} chunk {i} merged successfully.")
-                if delete_parts_after_merge:
-                    for f in chunk_files:
-                        try:
-                            os.remove(f)
-                            print(f"  Removed: {os.path.basename(f)}")
-                        except Exception as e:
-                            print(f"Warning: could not remove {f}: {e}")
+        if result.returncode != 0:
+            print(f"  [ERROR] Failed to merge {base} chunk {i}:")
+            print(f"  {result.stderr.strip()}")
+        else:
+            print(f"  [OK] Chunk {i} merged successfully!")
+            if delete_parts_after_merge:
+                for f in chunk_files:
+                    try:
+                        os.remove(f)
+                    except Exception as e:
+                        print(f"  Warning: could not remove {os.path.basename(f)}: {e}")
 
 def main():
-    jobs = build_jobs()
-    print(f"Prepared {len(jobs)} total jobs across all ROOT files.")
+    all_files = [f for f in os.listdir(input_dir) if f.endswith(".root")]
+    total_samples = len(all_files)
     
-    with ThreadPoolExecutor(max_workers=ncpus) as executor:
-        results = list(executor.map(run_job, jobs))
+    print(f"{'='*60}")
+    print(f"Configuration:")
+    print(f"  Input directory: {input_dir}")
+    print(f"  Output directory: {output_dir}")
+    print(f"  Parallel workers: {ncpus}")
+    print(f"  Final files per sample: {n_final_files}")
+    print(f"  Total samples: {total_samples}")
+    print(f"{'='*60}\n")
     
-    print("\n=== All jobs completed ===")
-    failed = sum(1 for r in results if r != 0)
-    if failed:
-        print(f"{failed} jobs failed.")
-    else:
-        print("All jobs succeeded.")
+    for idx, filename in enumerate(all_files, 1):
+        base = os.path.splitext(filename)[0]
+        print(f"\n{'#'*60}")
+        print(f"# Processing sample {idx}/{total_samples}: {base}")
+        print(f"{'#'*60}")
+        
+        jobs = build_jobs_for_sample(filename)
+        print(f"Created {len(jobs)} jobs for {base}")
+        
+        with ThreadPoolExecutor(max_workers=ncpus) as executor:
+            results = list(executor.map(run_job, jobs))
+        
+        failed = sum(1 for r, _ in results if r != 0)
+        if failed:
+            print(f"\n⚠ {failed}/{len(jobs)} jobs failed for {base}")
+        else:
+            print(f"\n✓ All {len(jobs)} jobs succeeded for {base}")
+        
+        # Merge immediately after processing
+        merge_sample(base)
     
-    merge_outputs()
-    print("\nAll done!")
+    print(f"\n{'='*60}")
+    print("✓ All samples processed!")
+    print(f"{'='*60}")
 
 if __name__ == "__main__":
     main()
