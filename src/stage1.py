@@ -100,7 +100,8 @@ class Analysis():
         }
 
         if self.ana_args.doData:
-            df = df.Filter("AlephSelection::sel_class_filter(16)(ClassBitset)  || AlephSelection::sel_class_filter(17)(ClassBitset) ")
+            #df = df.Filter("AlephSelection::sel_class_filter(16)(ClassBitset)   || AlephSelection::sel_class_filter(17)(ClassBitset) ")
+            df = df.Filter("AlephSelection::sel_class_filter(16)(ClassBitset) ")
             df = df.Define("jetPID", "-999")
         else:
             # Using Classbit to filter out QQbar samples and then get a specific flavor of jets
