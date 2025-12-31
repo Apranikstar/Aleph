@@ -7,8 +7,8 @@ import glob
 from math import ceil
 
 # --- user configuration ---
-input_dir = "/eos/experiment/fcc/ee/analyses/case-studies/aleph/processedMC/1994/zqq/stage1/1.0.0"
-output_dir = "/eos/user/h/hfatehi/aleph-v1.0.0/"
+input_dir = "/eos/experiment/fcc/ee/analyses/case-studies/aleph/processedMC/1994/zqq/stage1/1.1.0/"
+output_dir = "/eos/user/h/hfatehi/aleph-v1.1.0-dEdx/"
 stage2_script = "stage2.py"
 ncpus = 64  # number of parallel threads
 delete_parts_after_merge = True  # set to True to remove part files after merging
