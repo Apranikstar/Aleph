@@ -1,4 +1,3 @@
-
 from argparse import ArgumentParser
 
 class Analysis():
@@ -81,7 +80,7 @@ class Analysis():
             }
 
         #set run options:
-        self.n_threads = 4 
+        self.n_threads = 64 
         self.include_paths = ["analyzer.h"]
 
     def analyzers(self, df):
@@ -307,7 +306,17 @@ class Analysis():
         df = df.Define("pfcand_dEdx_ch_wires_value", "pfcand_dEdx_wires_ch_result.values")
         df = df.Define("pfcand_dEdx_ch_wires_error", "pfcand_dEdx_wires_ch_result.errors")
 
+        df = df.Filter("jet_nconst[0] > 2")
+        df = df.Filter("jet_nconst[1] > 2")
 
+        df = df.Filter("jet_nchad[0] > 2")
+        df = df.Filter("jet_nchad[1] > 2")
+
+        df = df.Filter("jet_pT[0] > 10")
+        df = df.Filter("jet_pT[1] > 10")
+        
+        df = df.Filter("abs(jet_theta[0]) > 0.75 && abs(jet_theta[0]) < 2.4")
+        df = df.Filter("abs(jet_theta[1]) > 0.75 && abs(jet_theta[1]) < 2.4")
 
 
         return df
