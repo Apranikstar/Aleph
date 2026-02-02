@@ -267,7 +267,144 @@ struct build_constituents_dEdx_preserved {
 };
 
 
-
+struct build_constituents_dEdx_by_mass {
+    struct dEdxResult {
+        rv::RVec<rv::RVec<float>> pion_values;
+        rv::RVec<rv::RVec<float>> pion_errors;
+        rv::RVec<rv::RVec<float>> kaon_values;
+        rv::RVec<rv::RVec<float>> kaon_errors;
+        rv::RVec<rv::RVec<float>> proton_values;
+        rv::RVec<rv::RVec<float>> proton_errors;
+    };
+    
+    // Particle masses in GeV
+    static constexpr float PION_MASS = 0.13957039f;
+    static constexpr float KAON_MASS = 0.493677f;
+    static constexpr float PROTON_MASS = 0.938272f;
+    static constexpr float MASS_TOLERANCE = 0.010f;  // 10 MeV tolerance
+    
+    enum ParticleType {
+        PION,
+        KAON,
+        PROTON,
+        OTHER
+    };
+    
+    ParticleType identifyParticle(float mass) const {
+        if (std::abs(mass - PION_MASS) < MASS_TOLERANCE) return PION;
+        if (std::abs(mass - KAON_MASS) < MASS_TOLERANCE) return KAON;
+        if (std::abs(mass - PROTON_MASS) < MASS_TOLERANCE) return PROTON;
+        return OTHER;
+    }
+    
+    dEdxResult
+    operator()(const rv::RVec<FCCAnalysesJetConstituentsData> &jet_constituents_types,
+               const rv::RVec<edm4hep::ReconstructedParticleData> &recoParticles,
+               const rv::RVec<int> &_recoParticlesIndices,
+               const rv::RVec<edm4hep::RecDqdxData> &dEdxCollection,
+               const rv::RVec<int> &_dEdxIndicesCollection,
+               const std::vector<std::vector<int>> &jet_indices) const {
+        
+        rv::RVec<rv::RVec<float>> pion_values;
+        rv::RVec<rv::RVec<float>> pion_errors;
+        rv::RVec<rv::RVec<float>> kaon_values;
+        rv::RVec<rv::RVec<float>> kaon_errors;
+        rv::RVec<rv::RVec<float>> proton_values;
+        rv::RVec<rv::RVec<float>> proton_errors;
+        
+        // Build map Track.index -> dEdx object
+        std::unordered_map<int, edm4hep::RecDqdxData> track_index_to_dEdx;
+        for (size_t i = 0; i < _dEdxIndicesCollection.size(); ++i) {
+            track_index_to_dEdx[_dEdxIndicesCollection[i]] = dEdxCollection[i];
+        }
+        
+        // Loop over jets
+        for (size_t j = 0; j < jet_indices.size(); ++j) {
+            const auto &constituents = jet_indices[j];
+            
+            rv::RVec<float> jet_pion_values;
+            rv::RVec<float> jet_pion_errors;
+            rv::RVec<float> jet_kaon_values;
+            rv::RVec<float> jet_kaon_errors;
+            rv::RVec<float> jet_proton_values;
+            rv::RVec<float> jet_proton_errors;
+            
+            jet_pion_values.reserve(constituents.size());
+            jet_pion_errors.reserve(constituents.size());
+            jet_kaon_values.reserve(constituents.size());
+            jet_kaon_errors.reserve(constituents.size());
+            jet_proton_values.reserve(constituents.size());
+            jet_proton_errors.reserve(constituents.size());
+            
+            // Loop over jet constituents
+            for (size_t c = 0; c < constituents.size(); ++c) {
+                int rp_index = constituents[c];
+                const auto &recoPart = recoParticles[rp_index];
+                
+                // Identify particle type by mass
+                ParticleType particle_type = identifyParticle(recoPart.mass);
+                
+                float pion_value = -9.0f, pion_error = -9.0f;
+                float kaon_value = -9.0f, kaon_error = -9.0f;
+                float proton_value = -9.0f, proton_error = -9.0f;
+                
+                if (particle_type != OTHER) {
+                    // Try to find dEdx for this particle
+                    float value = -9.0f;
+                    float error = -9.0f;
+                    
+                    for (int t = recoPart.tracks_begin; t < recoPart.tracks_end; ++t) {
+                        int track_index = _recoParticlesIndices[t];
+                        if (track_index_to_dEdx.count(track_index)) {
+                            const auto &dEdx = track_index_to_dEdx[track_index];
+                            if (dEdx.dQdx.type == 0) {
+                                value = dEdx.dQdx.value;
+                                error = dEdx.dQdx.error;
+                            }
+                            break;
+                        }
+                    }
+                    
+                    // Assign to appropriate species
+                    switch (particle_type) {
+                        case PION:
+                            pion_value = value;
+                            pion_error = error;
+                            break;
+                        case KAON:
+                            kaon_value = value;
+                            kaon_error = error;
+                            break;
+                        case PROTON:
+                            proton_value = value;
+                            proton_error = error;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                // For OTHER particles, all remain at -9.0f
+                
+                // Add values for all particle types (with placeholders for non-matches)
+                jet_pion_values.push_back(pion_value);
+                jet_pion_errors.push_back(pion_error);
+                jet_kaon_values.push_back(kaon_value);
+                jet_kaon_errors.push_back(kaon_error);
+                jet_proton_values.push_back(proton_value);
+                jet_proton_errors.push_back(proton_error);
+            }
+            
+            pion_values.emplace_back(std::move(jet_pion_values));
+            pion_errors.emplace_back(std::move(jet_pion_errors));
+            kaon_values.emplace_back(std::move(jet_kaon_values));
+            kaon_errors.emplace_back(std::move(jet_kaon_errors));
+            proton_values.emplace_back(std::move(jet_proton_values));
+            proton_errors.emplace_back(std::move(jet_proton_errors));
+        }
+        
+        return {pion_values, pion_errors, kaon_values, kaon_errors, proton_values, proton_errors};
+    }
+};
 
 }} // namespace FCCAnalyses::AlephSelection
 
