@@ -1,4 +1,3 @@
-
 from argparse import ArgumentParser
 
 class Analysis():
@@ -81,7 +80,7 @@ class Analysis():
             }
 
         #set run options:
-        self.n_threads = 4 
+        self.n_threads = 64 
         self.include_paths = ["analyzer.h"]
 
     def analyzers(self, df):
@@ -245,24 +244,99 @@ class Analysis():
         df = df.Define(f"jet_ngamma", f"JetConstituentsUtils::count_type(pfcand_isGamma)") 
         df = df.Define(f"jet_nnhad",  f"JetConstituentsUtils::count_type(pfcand_isNeutralHad)")
 
-        df = df.Define("dEdxPadsValue" , "dEdxPads.dQdx.value")
-        df = df.Define("dEdxPadsError" , "dEdxPads.dQdx.error")
-        df = df.Define("dEdxWiresValue" , "dEdxWires.dQdx.value")
-        df = df.Define("dEdxWiresError" , "dEdxPads.dQdx.error")
 
-        df = df.Define("jet_constituents_dEdx_pads_objs", "AlephSelection::build_constituents_dEdx()(RecoParticles, _RecoParticles_tracks.index, dEdxPads, _dEdxPads_track.index, _jetc)" )
-        df = df.Define("pfcand_dEdx_pads_type", "AlephSelection::get_dEdx_type(jet_constituents_dEdx_pads_objs)")
-        df = df.Define("pfcand_dEdx_pads_value", "AlephSelection::get_dEdx_value(jet_constituents_dEdx_pads_objs)")
-        df = df.Define("pfcand_dEdx_pads_error", "AlephSelection::get_dEdx_error(jet_constituents_dEdx_pads_objs)")
 
-        df = df.Define("jet_constituents_dEdx_wires_objs", "AlephSelection::build_constituents_dEdx()(RecoParticles, _RecoParticles_tracks.index, dEdxWires, _dEdxWires_track.index, _jetc)" )
-        df = df.Define("pfcand_dEdx_wires_type", "AlephSelection::get_dEdx_type(jet_constituents_dEdx_wires_objs)")
-        df = df.Define("pfcand_dEdx_wires_value", "AlephSelection::get_dEdx_value(jet_constituents_dEdx_wires_objs)")
-        df = df.Define("pfcand_dEdx_wires_error", "AlephSelection::get_dEdx_error(jet_constituents_dEdx_wires_objs)")
+                ## ELECTRONS — Pads
+        df = df.Define("pfcand_dEdx_pads_el_result",
+                    "AlephSelection::build_constituents_dEdx_preserved()("
+                    "jetConstitutentsTypes,"
+                    "RecoParticles, _RecoParticles_tracks.index,"
+                    "dEdxPads, _dEdxPads_track.index,"
+                    "_jetc, 1)")
+        df = df.Define("pfcand_dEdx_el_value_pads", "pfcand_dEdx_pads_el_result.values")
+        df = df.Define("pfcand_dEdx_el_error_pads", "pfcand_dEdx_pads_el_result.errors")
 
-        #for debug:
-        df = df.Define("pfcand_dEdx_len", "pfcand_dEdx_wires_value[0].size()")
-        df = df.Define("pfcand_E_len", "pfcand_e[0].size()")
+        ## ELECTRONS — Wires
+        df = df.Define("pfcand_dEdx_wires_el_result",
+                    "AlephSelection::build_constituents_dEdx_preserved()("
+                    "jetConstitutentsTypes,"
+                    "RecoParticles, _RecoParticles_tracks.index,"
+                    "dEdxWires, _dEdxWires_track.index,"
+                    "_jetc, 1)")
+        df = df.Define("pfcand_dEdx_el_wires_value", "pfcand_dEdx_wires_el_result.values")
+        df = df.Define("pfcand_dEdx_el_wires_error", "pfcand_dEdx_wires_el_result.errors")
+
+        ## MUONS — Pads
+        df = df.Define("pfcand_dEdx_pads_mu_result",
+                    "AlephSelection::build_constituents_dEdx_preserved()("
+                    "jetConstitutentsTypes,"
+                    "RecoParticles, _RecoParticles_tracks.index,"
+                    "dEdxPads, _dEdxPads_track.index,"
+                    "_jetc, 2)")
+        df = df.Define("pfcand_dEdx_mu_value_pads", "pfcand_dEdx_pads_mu_result.values")
+        df = df.Define("pfcand_dEdx_mu_error_pads", "pfcand_dEdx_pads_mu_result.errors")
+
+        ## MUONS — Wires
+        df = df.Define("pfcand_dEdx_wires_mu_result",
+                    "AlephSelection::build_constituents_dEdx_preserved()("
+                    "jetConstitutentsTypes,"
+                    "RecoParticles, _RecoParticles_tracks.index,"
+                    "dEdxWires, _dEdxWires_track.index,"
+                    "_jetc, 2)")
+        df = df.Define("pfcand_dEdx_mu_wires_value", "pfcand_dEdx_wires_mu_result.values")
+        df = df.Define("pfcand_dEdx_mu_wires_error", "pfcand_dEdx_wires_mu_result.errors")
+
+        ## CHARGED HADRONS — Pads (π/K/p)
+        df = df.Define("pfcand_dEdx_pads_ch_result",
+                    "AlephSelection::build_constituents_dEdx_preserved()("
+                    "jetConstitutentsTypes,"
+                    "RecoParticles, _RecoParticles_tracks.index,"
+                    "dEdxPads, _dEdxPads_track.index,"
+                    "_jetc, 0)")
+        df = df.Define("pfcand_dEdx_ch_value_pads", "pfcand_dEdx_pads_ch_result.values")
+        df = df.Define("pfcand_dEdx_ch_error_pads", "pfcand_dEdx_pads_ch_result.errors")
+
+        ## CHARGED HADRONS — Wires
+        df = df.Define("pfcand_dEdx_wires_ch_result",
+                    "AlephSelection::build_constituents_dEdx_preserved()("
+                    "jetConstitutentsTypes,"
+                    "RecoParticles, _RecoParticles_tracks.index,"
+                    "dEdxWires, _dEdxWires_track.index,"
+                    "_jetc, 0)")
+        df = df.Define("pfcand_dEdx_ch_wires_value", "pfcand_dEdx_wires_ch_result.values")
+        df = df.Define("pfcand_dEdx_ch_wires_error", "pfcand_dEdx_wires_ch_result.errors")
+
+        # Main result struct
+        # df = df.Define("pfcand_dEdx_pads_result",
+        #                 "AlephSelection::build_constituents_dEdx_by_mass()("
+        #                 "jetConstitutentsTypes,"
+        #                 "RecoParticles, _RecoParticles_tracks.index,"
+        #                 "dEdxPads, _dEdxPads_track.index,"
+        #                 "_jetc)")
+        
+        # # Pion variables
+        # df = df.Define("pfcand_dEdx_pion_value_pads", "pfcand_dEdx_pads_result.pion_values")
+        # df = df.Define("pfcand_dEdx_pion_error_pads", "pfcand_dEdx_pads_result.pion_errors")
+        
+        # # Kaon variables
+        # df = df.Define("pfcand_dEdx_kaon_value_pads", "pfcand_dEdx_pads_result.kaon_values")
+        # df = df.Define("pfcand_dEdx_kaon_error_pads", "pfcand_dEdx_pads_result.kaon_errors")
+        
+        # # Proton variables
+        # df = df.Define("pfcand_dEdx_proton_value_pads", "pfcand_dEdx_pads_result.proton_values")
+        # df = df.Define("pfcand_dEdx_proton_error_pads", "pfcand_dEdx_pads_result.proton_errors")
+
+        df = df.Filter("jet_nconst[0] > 2")
+        df = df.Filter("jet_nconst[1] > 2")
+
+        df = df.Filter("jet_nchad[0] > 2")
+        df = df.Filter("jet_nchad[1] > 2")
+
+        df = df.Filter("jet_pT[0] > 10")
+        df = df.Filter("jet_pT[1] > 10")
+        
+        df = df.Filter("abs(jet_theta[0]) > 0.75 && abs(jet_theta[0]) < 2.4")
+        df = df.Filter("abs(jet_theta[1]) > 0.75 && abs(jet_theta[1]) < 2.4")
 
 
         return df
@@ -270,19 +344,42 @@ class Analysis():
     def output(self):
 
         return [
-            #DEBUG
-            "pfcand_dEdx_len", "pfcand_E_len",
+
+ # Pads
+    "pfcand_dEdx_el_value_pads",
+    "pfcand_dEdx_mu_value_pads",
+    "pfcand_dEdx_ch_value_pads",
+
+    "pfcand_dEdx_el_error_pads",
+    "pfcand_dEdx_mu_error_pads",
+    "pfcand_dEdx_ch_error_pads",
+
+
+    
+    # Wires
+    "pfcand_dEdx_el_wires_value",
+    "pfcand_dEdx_mu_wires_value",
+    "pfcand_dEdx_ch_wires_value",
+
+    "pfcand_dEdx_el_wires_error",
+    "pfcand_dEdx_mu_wires_error",
+    "pfcand_dEdx_ch_wires_error",
+
+
+
+
+
+
+
+
+
 
             "event_class",
             "jetPID",
             #"event_type",
             "event_invariant_mass","event_njet",  
             "jet_mass","jet_p","jet_e", "jet_phi", "jet_theta", "jet_pT",
-            "dEdxPadsValue", "dEdxPadsError", "dEdxWiresValue", "dEdxWiresError",
-            #the dEdX values associated to the jet constituents:
-            "pfcand_dEdx_pads_type", "pfcand_dEdx_pads_value", "pfcand_dEdx_pads_error",
-            "pfcand_dEdx_wires_type", "pfcand_dEdx_wires_value", "pfcand_dEdx_wires_error",
-               
+
                 "jet_p_leading",
                 "jet_e_leading",
                 "jet_mass_leading",
