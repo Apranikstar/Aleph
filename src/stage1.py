@@ -260,12 +260,19 @@ class Analysis():
         df = df.Define("pfcand_dEdx_wires_value", "AlephSelection::get_dEdx_value(jet_constituents_dEdx_wires_objs)")
         df = df.Define("pfcand_dEdx_wires_error", "AlephSelection::get_dEdx_error(jet_constituents_dEdx_wires_objs)")
 
+        #for debug:
+        df = df.Define("pfcand_dEdx_len", "pfcand_dEdx_wires_value[0].size()")
+        df = df.Define("pfcand_E_len", "pfcand_e[0].size()")
+
 
         return df
 
     def output(self):
 
         return [
+            #DEBUG
+            "pfcand_dEdx_len", "pfcand_E_len",
+
             "event_class",
             "jetPID",
             #"event_type",
