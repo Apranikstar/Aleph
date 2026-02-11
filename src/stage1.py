@@ -249,18 +249,35 @@ class Analysis():
         df = df.Define("dEdxWiresValue" , "dEdxWires.dQdx.value")
         df = df.Define("dEdxWiresError" , "dEdxPads.dQdx.error")
 
-        df = df.Define("jet_constituents_dEdx_pads_objs", "AlephSelection::build_constituents_dEdx()(RecoParticles, _RecoParticles_tracks.index, dEdxPads, _dEdxPads_track.index, _jetc)" )
+        # df = df.Define("jet_constituents_dEdx_pads_objs", "AlephSelection::build_constituents_dEdx()(RecoParticles, _RecoParticles_tracks.index, dEdxPads, _dEdxPads_track.index, _jetc)" )
+        # df = df.Define("pfcand_dEdx_pads_type", "AlephSelection::get_dEdx_type(jet_constituents_dEdx_pads_objs)")
+        # df = df.Define("pfcand_dEdx_pads_value", "AlephSelection::get_dEdx_value(jet_constituents_dEdx_pads_objs)")
+        # df = df.Define("pfcand_dEdx_pads_error", "AlephSelection::get_dEdx_error(jet_constituents_dEdx_pads_objs)")
+
+        # df = df.Define("jet_constituents_dEdx_wires_objs", "AlephSelection::build_constituents_dEdx()(RecoParticles, _RecoParticles_tracks.index, dEdxWires, _dEdxWires_track.index, _jetc)" )
+        # df = df.Define("pfcand_dEdx_wires_type", "AlephSelection::get_dEdx_type(jet_constituents_dEdx_wires_objs)")
+        # df = df.Define("pfcand_dEdx_wires_value", "AlephSelection::get_dEdx_value(jet_constituents_dEdx_wires_objs)")
+        # df = df.Define("pfcand_dEdx_wires_error", "AlephSelection::get_dEdx_error(jet_constituents_dEdx_wires_objs)")
+
+        # adjusted to get also PID hypthesis p value
+        df = df.Define("jet_constituents_dEdx_PIDhypo_pads_result", "AlephSelection::build_constituents_dEdx_PIDhypo()(RecoParticles, _RecoParticles_tracks.index, dEdxPads, _dEdxPads_track.index, _jetc, false)" )
+        df = df.Define("jet_constituents_dEdx_pads_objs", "jet_constituents_dEdx_PIDhypo_pads_result.dedx_constituents")
         df = df.Define("pfcand_dEdx_pads_type", "AlephSelection::get_dEdx_type(jet_constituents_dEdx_pads_objs)")
         df = df.Define("pfcand_dEdx_pads_value", "AlephSelection::get_dEdx_value(jet_constituents_dEdx_pads_objs)")
         df = df.Define("pfcand_dEdx_pads_error", "AlephSelection::get_dEdx_error(jet_constituents_dEdx_pads_objs)")
 
-        df = df.Define("jet_constituents_dEdx_wires_objs", "AlephSelection::build_constituents_dEdx()(RecoParticles, _RecoParticles_tracks.index, dEdxWires, _dEdxWires_track.index, _jetc)" )
-        df = df.Define("pfcand_dEdx_wires_type", "AlephSelection::get_dEdx_type(jet_constituents_dEdx_wires_objs)")
-        df = df.Define("pfcand_dEdx_wires_value", "AlephSelection::get_dEdx_value(jet_constituents_dEdx_wires_objs)")
-        df = df.Define("pfcand_dEdx_wires_error", "AlephSelection::get_dEdx_error(jet_constituents_dEdx_wires_objs)")
+        # extract the pvalues for different PID hyptheses based on Bethe-Bloch dE/dx vs p fits - order: ["e", "mu", "pi", "K", "p"]
+        df = df.Define("jet_constituents_PID_pvals", "jet_constituents_dEdx_PIDhypo_pads_result.pid_array_constituents")
+        # df = df.Define("pfcand_PID_pval_ele", "Map(jet_constituents_PID_pvals, [](const auto& jet){ " "  return Map(jet, [](const auto& arr){ return arr[0]; });""})")
+        df = df.Define("pfcand_PID_pval_ele", "AlephSelection::get_PID_pvalue(jet_constituents_PID_pvals, 0)")
+        df = df.Define("pfcand_PID_pval_mu", "AlephSelection::get_PID_pvalue(jet_constituents_PID_pvals, 1)")
+        df = df.Define("pfcand_PID_pval_pi", "AlephSelection::get_PID_pvalue(jet_constituents_PID_pvals, 2)")
+        df = df.Define("pfcand_PID_pval_kaon", "AlephSelection::get_PID_pvalue(jet_constituents_PID_pvals, 3)")
+        df = df.Define("pfcand_PID_pval_proton", "AlephSelection::get_PID_pvalue(jet_constituents_PID_pvals, 4)")
 
         #for debug:
-        df = df.Define("pfcand_dEdx_len", "pfcand_dEdx_wires_value[0].size()")
+        df = df.Define("pfcand_dEdx_len", "pfcand_dEdx_pads_value[0].size()")
+        df = df.Define("pfcand_pval_ele_len", "pfcand_PID_pval_ele[0].size()")
         df = df.Define("pfcand_E_len", "pfcand_e[0].size()")
 
 
@@ -270,7 +287,9 @@ class Analysis():
 
         return [
             #DEBUG
-            "pfcand_dEdx_len", "pfcand_E_len",
+            "pfcand_dEdx_len", "pfcand_E_len", "pfcand_pval_ele_len",
+
+            "pfcand_PID_pval_ele", "pfcand_PID_pval_mu", "pfcand_PID_pval_pi", "pfcand_PID_pval_kaon", "pfcand_PID_pval_proton",
 
             "event_class",
             "jetPID",
@@ -280,7 +299,7 @@ class Analysis():
             "dEdxPadsValue", "dEdxPadsError", "dEdxWiresValue", "dEdxWiresError",
             #the dEdX values associated to the jet constituents:
             "pfcand_dEdx_pads_type", "pfcand_dEdx_pads_value", "pfcand_dEdx_pads_error",
-            "pfcand_dEdx_wires_type", "pfcand_dEdx_wires_value", "pfcand_dEdx_wires_error",
+            # "pfcand_dEdx_wires_type", "pfcand_dEdx_wires_value", "pfcand_dEdx_wires_error",
                
                 "jet_p_leading",
                 "jet_e_leading",
