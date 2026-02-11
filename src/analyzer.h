@@ -388,7 +388,7 @@ struct build_constituents_dEdx{
         // The links dEdx -> Track and RecoPart -> Track are one-directional, we need a map to store
         // Track.index -> dEdx to not have to loop everytime 
         // in addition, the object itself is stored in <Collection>
-        // while the relations (=indices we need for links) are on _<Collection>
+        // while the relations (=indices we need for links) are in _<Collection>
         std::unordered_map<int, edm4hep::RecDqdxData> track_index_to_dEdx;
         for (size_t i = 0; i < _dEdxIndicesCollection.size(); ++i) {
           int track_index = _dEdxIndicesCollection[i];
@@ -396,7 +396,7 @@ struct build_constituents_dEdx{
           track_index_to_dEdx[track_index] = dedx_value;
         }
 
-        //now, for each jet loop over the indices of the jet constituents provided by teh JetClusteringUtils
+        //now, for each jet loop over the indices of the jet constituents provided by the JetClusteringUtils
         // retrieve the associated RecoParticle
         // from there get the link to the Track from the corresponding index collection
         for (const auto &jet_const_indices : jet_indices) { //loop over jets
@@ -405,14 +405,37 @@ struct build_constituents_dEdx{
           for (int constituent_index : jet_const_indices) { // loop over jet constituents
             const auto &recoPart = recoParticles[constituent_index];
 
-            //loop over tracks associated to the RecoPart (should always be one in Aleph data)
+            // Try to find dEdx for this particle, if not found or not good value, use the dummy with defaults
+            bool found = false;
+
+            edm4hep::RecDqdxData dEdx_dummy_obj{};
+            dEdx_dummy_obj.dQdx.value = -9.0f;
+            dEdx_dummy_obj.dQdx.error = -9.0f;
+            dEdx_dummy_obj.dQdx.type = -9.0f;
+
+            //loop over tracks associated to the RecoPart (for charged particles should always be exactly one in ALEPH data)
             for (int track = recoPart.tracks_begin; track < recoPart.tracks_end; ++track) {
                  int track_index = _recoParticlesIndices[track]; //this should be the same index used in the link from dEdx to track
 
                   //find the matching dEdx in the map
                   if (track_index_to_dEdx.count(track_index)) {
-                    jet_dEdx.push_back(track_index_to_dEdx[track_index]);
+                    const auto &dEdx = track_index_to_dEdx[track_index];
+
+                    //check wether the measurement is valid, if not fill default value
+                    if (dEdx.dQdx.type == 0) {
+                      jet_dEdx.push_back(track_index_to_dEdx[track_index]);
+                    }
+                    else {
+                      jet_dEdx.push_back(dEdx_dummy_obj);
+                    }
+
+                    found = true;
+                    break;
                   }
+            }
+            // if no track found, i.e. neutral particle, use the dummy 
+            if (!found){
+              jet_dEdx.push_back(dEdx_dummy_obj);
             }
           }
           dedx_constituents.push_back(jet_dEdx); 
