@@ -5,7 +5,7 @@ Version of the FCCAnalyses code that supports command line arguments, to be able
 ## Setup
 ```bash
 git clone https://github.com/Apranikstar/Aleph.git
-cd Aleph/data/
+cd Aleph/src/
 source /cvmfs/sw-nightlies.hsf.org/key4hep/setup.sh
 ```
 
@@ -35,4 +35,18 @@ fccanalysis run stage1.py -- --tag <version_tag> --doData
 Output files will be in: `/eos/experiment/fcc/ee/analyses/case-studies/aleph/processedData/<year>/stage1/<version_tag>/`
 
 `--year` and `--fraction` is also supported as an argument here. 
+
+
+
+### STAGE 2:
+
+Don't touch stage2.py!
+Open up stage2_all.py and change the desired input and output directories. 
+Set the number of cpus.
+Now you can decide if you want to divide each flavor into multiple files, then you can change the argument `n_final_files`.
+Run it with nightlies.
+
+
+
+
 
