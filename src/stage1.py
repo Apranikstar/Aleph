@@ -245,10 +245,10 @@ class Analysis():
         df = df.Define(f"jet_ngamma", f"JetConstituentsUtils::count_type(pfcand_isGamma)") 
         df = df.Define(f"jet_nnhad",  f"JetConstituentsUtils::count_type(pfcand_isNeutralHad)")
 
-        df = df.Define("dEdxPadsValue" , "dEdxPads.dQdx.value")
-        df = df.Define("dEdxPadsError" , "dEdxPads.dQdx.error")
-        df = df.Define("dEdxWiresValue" , "dEdxWires.dQdx.value")
-        df = df.Define("dEdxWiresError" , "dEdxPads.dQdx.error")
+        # df = df.Define("dEdxPadsValue" , "dEdxPads.dQdx.value")
+        # df = df.Define("dEdxPadsError" , "dEdxPads.dQdx.error")
+        # df = df.Define("dEdxWiresValue" , "dEdxWires.dQdx.value")
+        # df = df.Define("dEdxWiresError" , "dEdxPads.dQdx.error")
 
         # df = df.Define("jet_constituents_dEdx_pads_objs", "AlephSelection::build_constituents_dEdx()(RecoParticles, _RecoParticles_tracks.index, dEdxPads, _dEdxPads_track.index, _jetc)" )
         # df = df.Define("pfcand_dEdx_pads_type", "AlephSelection::get_dEdx_type(jet_constituents_dEdx_pads_objs)")
@@ -260,25 +260,41 @@ class Analysis():
         # df = df.Define("pfcand_dEdx_wires_value", "AlephSelection::get_dEdx_value(jet_constituents_dEdx_wires_objs)")
         # df = df.Define("pfcand_dEdx_wires_error", "AlephSelection::get_dEdx_error(jet_constituents_dEdx_wires_objs)")
 
-        # adjusted to get also PID hypthesis p value
+        # Get the dE/dx value and matching PID hypothesis pvalue from Bethe-Bloch fits for the jet constituents
+
+        ## Pads
         df = df.Define("jet_constituents_dEdx_PIDhypo_pads_result", "AlephSelection::build_constituents_dEdx_PIDhypo()(RecoParticles, _RecoParticles_tracks.index, dEdxPads, _dEdxPads_track.index, _jetc, false)" )
         df = df.Define("jet_constituents_dEdx_pads_objs", "jet_constituents_dEdx_PIDhypo_pads_result.dedx_constituents")
         df = df.Define("pfcand_dEdx_pads_type", "AlephSelection::get_dEdx_type(jet_constituents_dEdx_pads_objs)")
         df = df.Define("pfcand_dEdx_pads_value", "AlephSelection::get_dEdx_value(jet_constituents_dEdx_pads_objs)")
         df = df.Define("pfcand_dEdx_pads_error", "AlephSelection::get_dEdx_error(jet_constituents_dEdx_pads_objs)")
 
-        # extract the pvalues for different PID hyptheses based on Bethe-Bloch dE/dx vs p fits - order: ["e", "mu", "pi", "K", "p"]
-        df = df.Define("jet_constituents_PID_pvals", "jet_constituents_dEdx_PIDhypo_pads_result.pid_array_constituents")
-        # df = df.Define("pfcand_PID_pval_ele", "Map(jet_constituents_PID_pvals, [](const auto& jet){ " "  return Map(jet, [](const auto& arr){ return arr[0]; });""})")
-        df = df.Define("pfcand_PID_pval_ele", "AlephSelection::get_PID_pvalue(jet_constituents_PID_pvals, 0)")
-        df = df.Define("pfcand_PID_pval_mu", "AlephSelection::get_PID_pvalue(jet_constituents_PID_pvals, 1)")
-        df = df.Define("pfcand_PID_pval_pi", "AlephSelection::get_PID_pvalue(jet_constituents_PID_pvals, 2)")
-        df = df.Define("pfcand_PID_pval_kaon", "AlephSelection::get_PID_pvalue(jet_constituents_PID_pvals, 3)")
-        df = df.Define("pfcand_PID_pval_proton", "AlephSelection::get_PID_pvalue(jet_constituents_PID_pvals, 4)")
+        ## extract the pvalues for different PID hyptheses based on Bethe-Bloch dE/dx vs p fits - order: ["e", "mu", "pi", "K", "p"]
+        df = df.Define("jet_constituents_PID_pvals_pads", "jet_constituents_dEdx_PIDhypo_pads_result.pid_array_constituents")
+        df = df.Define("pfcand_PID_pval_pads_ele", "AlephSelection::get_PID_pvalue(jet_constituents_PID_pvals_pads, 0)")
+        df = df.Define("pfcand_PID_pval_pads_mu", "AlephSelection::get_PID_pvalue(jet_constituents_PID_pvals_pads, 1)")
+        df = df.Define("pfcand_PID_pval_pads_pi", "AlephSelection::get_PID_pvalue(jet_constituents_PID_pvals_pads, 2)")
+        df = df.Define("pfcand_PID_pval_pads_kaon", "AlephSelection::get_PID_pvalue(jet_constituents_PID_pvals_pads, 3)")
+        df = df.Define("pfcand_PID_pval_pads_proton", "AlephSelection::get_PID_pvalue(jet_constituents_PID_pvals_pads, 4)")
+
+        ## Wires
+        df = df.Define("jet_constituents_dEdx_PIDhypo_wires_result", "AlephSelection::build_constituents_dEdx_PIDhypo()(RecoParticles, _RecoParticles_tracks.index, dEdxWires, _dEdxWires_track.index, _jetc, true)" )
+        df = df.Define("jet_constituents_dEdx_wires_objs", "jet_constituents_dEdx_PIDhypo_wires_result.dedx_constituents")
+        df = df.Define("pfcand_dEdx_wires_type", "AlephSelection::get_dEdx_type(jet_constituents_dEdx_wires_objs)")
+        df = df.Define("pfcand_dEdx_wires_value", "AlephSelection::get_dEdx_value(jet_constituents_dEdx_wires_objs)")
+        df = df.Define("pfcand_dEdx_wires_error", "AlephSelection::get_dEdx_error(jet_constituents_dEdx_wires_objs)")
+
+        ## extract the pvalues for different PID hyptheses based on Bethe-Bloch dE/dx vs p fits - order: ["e", "mu", "pi", "K", "p"]
+        df = df.Define("jet_constituents_PID_pvals_wires", "jet_constituents_dEdx_PIDhypo_wires_result.pid_array_constituents")
+        df = df.Define("pfcand_PID_pval_wires_ele", "AlephSelection::get_PID_pvalue(jet_constituents_PID_pvals_wires, 0)")
+        df = df.Define("pfcand_PID_pval_wires_mu", "AlephSelection::get_PID_pvalue(jet_constituents_PID_pvals_wires, 1)")
+        df = df.Define("pfcand_PID_pval_wires_pi", "AlephSelection::get_PID_pvalue(jet_constituents_PID_pvals_wires, 2)")
+        df = df.Define("pfcand_PID_pval_wires_kaon", "AlephSelection::get_PID_pvalue(jet_constituents_PID_pvals_wires, 3)")
+        df = df.Define("pfcand_PID_pval_wires_proton", "AlephSelection::get_PID_pvalue(jet_constituents_PID_pvals_wires, 4)")
 
         #for debug:
-        df = df.Define("pfcand_dEdx_len", "pfcand_dEdx_pads_value[0].size()")
-        df = df.Define("pfcand_pval_ele_len", "pfcand_PID_pval_ele[0].size()")
+        df = df.Define("pfcand_dEdx_len", "pfcand_dEdx_wires_value[0].size()")
+        df = df.Define("pfcand_pval_ele_len", "pfcand_PID_pval_wires_ele[0].size()")
         df = df.Define("pfcand_E_len", "pfcand_e[0].size()")
 
 
@@ -290,48 +306,110 @@ class Analysis():
             #DEBUG
             "pfcand_dEdx_len", "pfcand_E_len", "pfcand_pval_ele_len",
 
-            "pfcand_PID_pval_ele", "pfcand_PID_pval_mu", "pfcand_PID_pval_pi", "pfcand_PID_pval_kaon", "pfcand_PID_pval_proton",
-
+            # Event variables
             "event_class",
-            "jetPID",
             #"event_type",
-            "event_invariant_mass","event_njet",  
-            "jet_mass","jet_p","jet_e", "jet_phi", "jet_theta", "jet_pT",
-            "dEdxPadsValue", "dEdxPadsError", "dEdxWiresValue", "dEdxWiresError",
-            #the dEdX values associated to the jet constituents:
-            "pfcand_dEdx_pads_type", "pfcand_dEdx_pads_value", "pfcand_dEdx_pads_error",
-            # "pfcand_dEdx_wires_type", "pfcand_dEdx_wires_value", "pfcand_dEdx_wires_error",
-               
-                "jet_p_leading",
-                "jet_e_leading",
-                "jet_mass_leading",
-                "jet_phi_leading",
-                "jet_theta_leading",
-                "jet_pT_leading",
-                "jet_eta_leading",
-                "jet_p_subleading",
-                "jet_e_subleading",
-                "jet_mass_subleading",
-                "jet_phi_subleading",
-                "jet_theta_subleading",
-                "jet_pT_subleading",
-                "jet_eta_subleading",   
-                
-                "jet_nnhad","jet_ngamma","jet_nchad","jet_nel", "jet_nmu", "jet_nconst",
-                
-                "pfcand_isMu", "pfcand_isEl", "pfcand_isChargedHad", "pfcand_isGamma", "pfcand_isNeutralHad",
-                "pfcand_e", "pfcand_p", "pfcand_theta", "pfcand_phi", "pfcand_charge", "pfcand_type",
-                "pfcand_erel", "pfcand_erel_log", "pfcand_thetarel", "pfcand_phirel", 
- 
-                #"Bz",
- 
-                "pfcand_dxy", "pfcand_dz", "pfcand_phi0", "pfcand_C", "pfcand_ct",
-                "pfcand_dptdpt", "pfcand_dxydxy", "pfcand_dzdz", "pfcand_dphidphi", "pfcand_detadeta",
-                "pfcand_dxydz", "pfcand_dphidxy", "pfcand_phidz", "pfcand_phictgtheta", "pfcand_dxyctgtheta",
-                "pfcand_dlambdadz", "pfcand_cctgtheta", "pfcand_phic", "pfcand_dxyc", "pfcand_cdz",
- 
-                "pfcand_btagSip2dVal", "pfcand_btagSip2dSig", "pfcand_btagSip3dVal", "pfcand_btagSip3dSig", 
-                "pfcand_btagJetDistVal", "pfcand_btagJetDistSig",
+            "event_invariant_mass",
+            "event_njet",  
+            "VertexX", 
+            "VertexY", 
+            "VertexZ",
 
-                "VertexX", "VertexY", "VertexZ"
-                ]
+            # Jet variables
+            "jet_mass",
+            "jet_p",
+            "jet_e", 
+            "jet_phi", 
+            "jet_theta", 
+            "jet_pT",
+            "jet_p_leading",
+            "jet_e_leading",
+            "jet_mass_leading",
+            "jet_phi_leading",
+            "jet_theta_leading",
+            "jet_pT_leading",
+            "jet_eta_leading",
+            "jet_p_subleading",
+            "jet_e_subleading",
+            "jet_mass_subleading",
+            "jet_phi_subleading",
+            "jet_theta_subleading",
+            "jet_pT_subleading",
+            "jet_eta_subleading", 
+            "jet_nnhad",
+            "jet_ngamma",
+            "jet_nchad",
+            "jet_nel", 
+            "jet_nmu", 
+            "jet_nconst",  
+
+            "jetPID",
+
+            # Pfcand/jet constituent variables
+            "pfcand_isMu", 
+            "pfcand_isEl", 
+            "pfcand_isChargedHad", 
+            "pfcand_isGamma", 
+            "pfcand_isNeutralHad",
+            "pfcand_e", 
+            "pfcand_p", 
+            "pfcand_theta", 
+            "pfcand_phi", 
+            "pfcand_charge", 
+            "pfcand_type",
+            "pfcand_erel", 
+            "pfcand_erel_log", 
+            "pfcand_thetarel", 
+            "pfcand_phirel", 
+            "pfcand_dxy", 
+            "pfcand_dz", 
+            "pfcand_phi0", 
+            "pfcand_C", 
+            "pfcand_ct",
+            "pfcand_dptdpt", 
+            "pfcand_dxydxy", 
+            "pfcand_dzdz", 
+            "pfcand_dphidphi", 
+            "pfcand_detadeta",
+            "pfcand_dxydz", 
+            "pfcand_dphidxy", 
+            "pfcand_phidz", 
+            "pfcand_phictgtheta", 
+            "pfcand_dxyctgtheta",
+            "pfcand_dlambdadz", 
+            "pfcand_cctgtheta", 
+            "pfcand_phic", 
+            "pfcand_dxyc", 
+            "pfcand_cdz",
+            "pfcand_btagSip2dVal", 
+            "pfcand_btagSip2dSig",
+            "pfcand_btagSip3dVal", 
+            "pfcand_btagSip3dSig", 
+            "pfcand_btagJetDistVal", 
+            "pfcand_btagJetDistSig",
+
+            # jet constituent PID 
+            "pfcand_dEdx_pads_type", 
+            "pfcand_dEdx_pads_value", 
+            "pfcand_dEdx_pads_error",
+            "pfcand_PID_pval_pads_ele",
+            "pfcand_PID_pval_pads_mu",
+            "pfcand_PID_pval_pads_pi",
+            "pfcand_PID_pval_pads_kaon",
+            "pfcand_PID_pval_pads_proton",
+
+            "pfcand_dEdx_wires_type", 
+            "pfcand_dEdx_wires_value", 
+            "pfcand_dEdx_wires_error",
+            "pfcand_PID_pval_wires_ele",
+            "pfcand_PID_pval_wires_mu",
+            "pfcand_PID_pval_wires_pi",
+            "pfcand_PID_pval_wires_kaon",
+            "pfcand_PID_pval_wires_proton",
+            
+            # to check if needed still? 
+            # "dEdxPadsValue", "dEdxPadsError", "dEdxWiresValue", "dEdxWiresError",
+            # #"Bz",
+
+                
+            ]
