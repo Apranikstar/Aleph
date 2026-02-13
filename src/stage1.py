@@ -123,6 +123,7 @@ class Analysis():
         # Define pseudo-jets
         ####################################################################################################
         df = df.Define("pjetc", "JetClusteringUtils::set_pseudoJets(RP_px, RP_py, RP_pz, RP_e)")
+
         # Anti-kt clustering and jet constituents
         ####################################################################################################
         df = df.Define("_jet", "JetClustering::clustering_ee_kt(2, 2, 1, 0)(pjetc)")
@@ -135,7 +136,22 @@ class Analysis():
         df = df.Define("jet_p4", "JetConstituentsUtils::compute_tlv_jets(jets)" )
         df = df.Define("event_invariant_mass", "JetConstituentsUtils::InvariantMass(jet_p4[0], jet_p4[1])")
 
+
+        # ==== Track selection (to harmonize with Luka's code)
+        # df = df.Define("n_tracks_all", f"AlephSelection::select_tracks( {coll['PFTracks']} )")
+        df = df.Define("n_tracks_all", "Tracks.size()")
+        df = df.Define("chi2_tracks_all","AlephSelection::get_track_chi2( Tracks )") #TODO: use collection here
+        df = df.Define("ndf_tracks_all","AlephSelection::get_track_ndf( Tracks )") #TODO: use collection here
+        df = df.Define("chi2_o_ndf_tracks_all","AlephSelection::get_track_ndf( Tracks )") #TODO: use collection here
+        df = df.Define("tracks_selected_for_vertexfit","AlephSelection::select_tracks( Tracks, _Tracks_trackStates, 0.75, 2.0 )") #TODO: use collection here
+        df = df.Define("n_tracks_sel", "tracks_selected_for_vertexfit.size()")
+
         # ===== VERTEX
+
+        # run primary vertex fit using FCCAna native fitter 
+
+
+        # read the vertex as stored in the files
         df = df.Define(
             "pv",
             "TLorentzVector(Vertices[0].position.x, Vertices[0].position.y, Vertices[0].position.z, 0.0)",
@@ -320,6 +336,13 @@ class Analysis():
             "VertexX", 
             "VertexY", 
             "VertexZ",
+
+            # Track variables
+            "n_tracks_all",
+            "n_tracks_sel",
+            "chi2_tracks_all",
+            "ndf_tracks_all",
+            "chi2_o_ndf_tracks_all",
 
             # Jet variables
             "jet_mass",
