@@ -14,8 +14,10 @@ A modernized pipeline for processing jet flavor tagging data, using `uproot` for
 ## Files
 
 - `config.yaml` - Configuration file defining variables and flavor mapping
-- `stage2.py` - Main processing script (converts event-level to jet-level data)
-- `run_parallel.py` - Parallel processing pipeline
+- `steering.py` - **Main entry point** - Configure and run the pipeline here
+- `stage2.py` - Core processing script (converts event-level to jet-level data)
+- `run_parallel.py` - Parallel processing engine
+- `example.py` - Example/test script demonstrating usage
 
 ## Installation
 
@@ -56,6 +58,33 @@ pfcand_variables:
 
 ## Usage
 
+### Quick Start - Using Steering File (Recommended)
+
+The easiest way to run the pipeline is using the steering file:
+
+1. **Edit `steering.py`** - Set your input/output directories and parameters at the top
+2. **Run it**: `python steering.py`
+
+```python
+# Example configuration in steering.py
+INPUT_DIR = "/eos/experiment/fcc/ee/.../stage1/1.1.0/"
+OUTPUT_DIR = "/eos/user/h/hfatehi/aleph-v1.1.0-dEdx/"
+N_WORKERS = 64
+N_FINAL_FILES = 1
+```
+
+Then simply run:
+```bash
+python steering.py
+```
+
+The steering file will:
+- Validate your paths and configuration
+- Show you what will be processed
+- Ask for confirmation before starting
+- Run the full parallel pipeline
+- Report final status
+
 ### Single File Processing
 
 Process a single ROOT file (or a chunk of it):
@@ -76,9 +105,9 @@ Arguments:
 - `1000` - Stop entry (exclusive)
 - `--config` - Path to config file (optional, default: config.yaml)
 
-### Parallel Processing
+### Advanced - Direct Parallel Processing
 
-Process all ROOT files in a directory in parallel:
+For more control, you can call `run_parallel.py` directly:
 
 ```bash
 python run_parallel.py \
@@ -95,17 +124,6 @@ Options:
 - `--keep-parts` - Keep intermediate part files after merging
 - `--n-final-files N` - Number of final merged files per sample (default: 1)
 - `--chunk-size N` - Entries per chunk (default: auto-calculate)
-
-### Example
-
-```bash
-# Process all Zbb, Zcc, Zuu files in parallel
-python run_parallel.py \
-    /eos/experiment/fcc/ee/analyses/case-studies/aleph/processedMC/1994/zqq/stage1/1.1.0/ \
-    /eos/user/h/hfatehi/aleph-v1.1.0-dEdx/ \
-    --workers 64 \
-    --n-final-files 1
-```
 
 ## Data Structure
 
