@@ -3,9 +3,9 @@
 # Jet flavor mapping: maps file patterns to jet flavor labels
 # Example: if filename contains "Zbb" -> creates branch "recojet_isB" with value 1 for that sample
 flavor_mapping:
-  Zuu: recojet_isUDS
-  Zdd: recojet_isUDS
-  Zss: recojet_isUDS
+  Zuu: recojet_isU
+  Zdd: recojet_isD
+  Zss: recojet_isS
   Zcc: recojet_isC
   Zbb: recojet_isB
   Znn: recojet_isN
@@ -19,27 +19,12 @@ jet_variables:
   - jet_phi
   - jet_theta
   - jet_pT
-  - jet_p_leading
-  - jet_e_leading
-  - jet_mass_leading
-  - jet_phi_leading
-  - jet_theta_leading
-  - jet_pT_leading
-  - jet_eta_leading
-  - jet_p_subleading
-  - jet_e_subleading
-  - jet_mass_subleading
-  - jet_phi_subleading
-  - jet_theta_subleading
-  - jet_pT_subleading
-  - jet_eta_subleading
   - jet_nnhad
   - jet_ngamma
   - jet_nchad
   - jet_nel
   - jet_nmu
   - jet_nconst
-  - jetPID
 
 # Particle Flow Candidate (PFCand) level variables
 # Each entry is a list of lists: [[jet1_constituents], [jet2_constituents], ...]
