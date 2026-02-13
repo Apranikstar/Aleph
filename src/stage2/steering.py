@@ -15,7 +15,7 @@ import subprocess
 
 # Input/Output directories
 INPUT_DIR = "/eos/experiment/fcc/ee/analyses/case-studies/aleph/processedMC/1994/zqq/stage1/temp"
-OUTPUT_DIR = "/eos/user/h/hfatehi/aleph-temp2/"
+OUTPUT_DIR = "./aleph-temp2/"
 
 # Processing parameters
 N_WORKERS = 64                      # Number of parallel workers
