@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-Stage2 processing using PyROOT (simpler for jagged arrays).
+Modern stage2 processing script using uproot.
+Converts event-level jet data to jet-level output with flavor labels.
 """
 
 import argparse
@@ -10,8 +11,6 @@ import numpy as np
 import uproot
 import awkward as ak
 import yaml
-from array import array
-from ROOT import TFile, TTree
 
 
 def load_config(config_path: str = "config.yaml") -> dict:
@@ -21,7 +20,19 @@ def load_config(config_path: str = "config.yaml") -> dict:
 
 
 def infer_jet_flavor(filename: str, flavor_mapping: dict) -> tuple[str, str]:
-    """Infer jet flavor from filename."""
+    """
+    Infer jet flavor from filename based on flavor mapping.
+    
+    Args:
+        filename: Input ROOT file name
+        flavor_mapping: Dictionary mapping file patterns to flavor labels
+    
+    Returns:
+        Tuple of (matched_pattern, flavor_label)
+    
+    Raises:
+        ValueError: If no flavor pattern matches the filename
+    """
     for pattern, label in flavor_mapping.items():
         if pattern in filename:
             return pattern, label
@@ -33,11 +44,23 @@ def infer_jet_flavor(filename: str, flavor_mapping: dict) -> tuple[str, str]:
     )
 
 
-def sanitize_value(val):
-    """Convert NaN/None to 0.0."""
-    if val is None or (isinstance(val, float) and np.isnan(val)):
-        return 0.0
-    return float(val)
+def sanitize_array(arr):
+    """
+    Convert NaN and None values to 0.0 in awkward arrays.
+    
+    Args:
+        arr: Awkward array that may contain NaN or None values
+    
+    Returns:
+        Sanitized array with NaN/None replaced by 0.0
+    """
+    # Handle None/null values
+    arr = ak.fill_none(arr, 0.0)
+    
+    # Handle NaN values
+    arr = ak.where(np.isnan(arr), 0.0, arr)
+    
+    return arr
 
 
 def process_chunk(
@@ -48,35 +71,54 @@ def process_chunk(
     entry_stop: int,
     flavor_label: str = None
 ) -> None:
-    """Process a chunk using PyROOT."""
+    """
+    Process a chunk of events from input file and write jet-level output.
     
-    # Infer jet flavor
+    Args:
+        input_file: Path to input ROOT file
+        output_file: Path to output ROOT file
+        config: Configuration dictionary
+        entry_start: First entry to process
+        entry_stop: Last entry to process (exclusive)
+        flavor_label: Optional custom flavor label (e.g., 'recojet_isB')
+                     If None, will infer from filename
+    """
+    # Infer jet flavor or use provided label
     if flavor_label is None:
         flavor_pattern, flavor_label = infer_jet_flavor(
             Path(input_file).name, 
             config['flavor_mapping']
         )
     else:
+        # Validate that the provided label exists in config
         valid_labels = set(config['flavor_mapping'].values())
         if flavor_label not in valid_labels:
-            raise ValueError(f"Invalid flavor label: {flavor_label}")
-        flavor_pattern = flavor_label
+            raise ValueError(
+                f"Invalid flavor label: {flavor_label}\n"
+                f"Must be one of: {', '.join(valid_labels)}"
+            )
+        flavor_pattern = flavor_label  # Just for tracking
     
-    # Get variable lists
-    jet_vars = config['jet_variables']
-    pfcand_vars = config['pfcand_variables']
-    all_vars = jet_vars + pfcand_vars
-    
-    # Read data with uproot
+    # Open input file and get tree
     with uproot.open(input_file) as infile:
         tree = infile[config['input_tree_name']]
         
-        if entry_stop > tree.num_entries:
+        # Get number of entries
+        n_entries = tree.num_entries
+        
+        # Validate entry range
+        if entry_stop > n_entries:
             raise ValueError(
                 f"Requested entry range [{entry_start}, {entry_stop}) exceeds "
-                f"available entries ({tree.num_entries})"
+                f"available entries ({n_entries})"
             )
         
+        # Get all variable names we need to read
+        jet_vars = config['jet_variables']
+        pfcand_vars = config['pfcand_variables']
+        all_vars = jet_vars + pfcand_vars
+        
+        # Read the data for this chunk
         arrays = tree.arrays(
             all_vars,
             entry_start=entry_start,
@@ -84,83 +126,90 @@ def process_chunk(
             library="ak"
         )
     
-    # Create output file with PyROOT
-    outfile = TFile(output_file, "RECREATE")
-    outtree = TTree(config['output_tree_name'], config['output_tree_name'])
+    # Prepare output data - we'll flatten jets across all events
+    output_data = {}
     
-    # Create branches for flavor labels
-    flavor_branches = {}
+    # Get number of jets per event
+    n_jets_per_event = ak.num(arrays[jet_vars[0]], axis=0)
+    total_jets = int(np.sum(n_jets_per_event))
+    
+    # Create flavor label branches (one for each flavor, only matched one is 1)
     for pattern, label in config['flavor_mapping'].items():
         is_matched = int(pattern == flavor_pattern)
-        flavor_branches[label] = array('i', [is_matched])
-        outtree.Branch(label, flavor_branches[label], f"{label}/I")
+        output_data[label] = np.full(total_jets, is_matched, dtype=np.int32)
     
-    # Create branches for jet variables
-    jet_branches = {}
+    # Flatten jet-level variables
     for var in jet_vars:
-        jet_branches[var] = array('f', [0.0])
-        outtree.Branch(var, jet_branches[var], f"{var}/F")
+        output_data[var] = ak.to_numpy(ak.flatten(arrays[var]))
     
-    # Create branches for pfcand variables (jagged)
-    max_pfcand = 500
-    jet_npfcand = array('i', [0])
-    outtree.Branch("jet_npfcand", jet_npfcand, "jet_npfcand/I")
-    
-    pfcand_branches = {}
+    # Process pfcand-level variables (keep as jagged arrays)
+    # Flatten the outer dimension (events) but keep inner (constituents) jagged
+    pfcand_jagged = {}
     for var in pfcand_vars:
-        pfcand_branches[var] = array('f', max_pfcand * [0.0])
-        outtree.Branch(var, pfcand_branches[var], f"{var}[jet_npfcand]/F")
-    
-    # Process events
-    n_events = entry_stop - entry_start
-    for i in range(n_events):
-        # Get number of jets in this event
-        n_jets = len(arrays[jet_vars[0]][i])
+        # arrays[var] has shape: [[event1_jet1_constituents, event1_jet2_constituents], [event2_jet1_constituents], ...]
+        # We want: [event1_jet1_constituents, event1_jet2_constituents, event2_jet1_constituents, ...]
+        flattened = ak.flatten(arrays[var], axis=0)
         
-        # Loop over jets
-        for j in range(n_jets):
-            # Fill flavor labels
-            for label, branch in flavor_branches.items():
-                # Already set, no need to change
-                pass
-            
-            # Fill jet variables
-            for var in jet_vars:
-                jet_branches[var][0] = float(arrays[var][i][j])
-            
-            # Fill pfcand variables
-            n_const = len(arrays[pfcand_vars[0]][i][j])
-            jet_npfcand[0] = min(n_const, max_pfcand)
-            
-            for var in pfcand_vars:
-                constituents = arrays[var][i][j]
-                for k in range(min(n_const, max_pfcand)):
-                    pfcand_branches[var][k] = sanitize_value(constituents[k])
-                # Fill remaining with zeros
-                for k in range(n_const, max_pfcand):
-                    pfcand_branches[var][k] = 0.0
-            
-            # Fill tree for this jet
-            outtree.Fill()
+        # Sanitize NaN and None values
+        flattened = sanitize_array(flattened)
+        
+        # Convert to format uproot can write: need to convert float64 to float32
+        # and ensure it's a 1D jagged array (var * float) not 2D (var * var * float)
+        pfcand_jagged[var] = ak.values_astype(flattened, np.float32)
     
-    # Write and close
-    outtree.Write()
-    outfile.Close()
+    # Add jet_npfcand - number of constituents per jet (convert to numpy for regular branch)
+    jet_npfcand = ak.to_numpy(ak.num(pfcand_jagged[pfcand_vars[0]], axis=1)).astype(np.int32)
+    
+    # Combine all data
+    for var in pfcand_vars:
+        output_data[var] = pfcand_jagged[var]
+    output_data['jet_npfcand'] = jet_npfcand
+    
+    # Write output file
+    with uproot.recreate(output_file) as outfile:
+        outfile[config['output_tree_name']] = output_data
 
 
 def main():
     parser = argparse.ArgumentParser(
         description="Process jet data from event-level to jet-level format"
     )
-    parser.add_argument("input_file", type=str, help="Input ROOT file path")
-    parser.add_argument("output_file", type=str, help="Output ROOT file path")
-    parser.add_argument("entry_start", type=int, help="First entry to process")
-    parser.add_argument("entry_stop", type=int, help="Last entry to process (exclusive)")
-    parser.add_argument("--config", type=str, default="config.yaml", help="Config file")
-    parser.add_argument("--flavor-label", type=str, default=None, help="Override flavor detection")
+    parser.add_argument(
+        "input_file",
+        type=str,
+        help="Input ROOT file path"
+    )
+    parser.add_argument(
+        "output_file",
+        type=str,
+        help="Output ROOT file path"
+    )
+    parser.add_argument(
+        "entry_start",
+        type=int,
+        help="First entry to process"
+    )
+    parser.add_argument(
+        "entry_stop",
+        type=int,
+        help="Last entry to process (exclusive)"
+    )
+    parser.add_argument(
+        "--config",
+        type=str,
+        default="config.yaml",
+        help="Path to configuration YAML file (default: config.yaml)"
+    )
+    parser.add_argument(
+        "--flavor-label",
+        type=str,
+        default=None,
+        help="Override automatic flavor detection with specific label (e.g., 'recojet_isB')"
+    )
     
     args = parser.parse_args()
     
+    # Load configuration
     try:
         config = load_config(args.config)
     except FileNotFoundError:
@@ -170,6 +219,7 @@ def main():
         print(f"ERROR: Failed to parse configuration file: {e}")
         sys.exit(1)
     
+    # Process the chunk
     try:
         process_chunk(
             args.input_file,
