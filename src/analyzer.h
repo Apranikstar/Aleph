@@ -54,6 +54,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <typeinfo>
 
 
 
@@ -234,10 +235,110 @@ get_isGamma(const rv::RVec<FCCAnalysesJetConstituents>& jcs) {
   }
   return out;
 }
+
+// --------------------------------------
+// Track helpers & selection
+// --------------------------------------
+
+
+// Getters for track fit quality vars
+ROOT::VecOps::RVec<float>
+get_track_chi2(const ROOT::VecOps::RVec<edm4hep::TrackData>& tracks_in){
+  ROOT::VecOps::RVec<float> chi2_out;
+  for (const auto &track : tracks_in) {
+    chi2_out.push_back(track.chi2);
+  }
+  return chi2_out;
+}
+
+ROOT::VecOps::RVec<float>
+get_track_ndf(const ROOT::VecOps::RVec<edm4hep::TrackData>& tracks_in){
+  ROOT::VecOps::RVec<float> ndf_out;
+  for (const auto &track : tracks_in) {
+    ndf_out.push_back(track.ndf);
+  }
+  return ndf_out;
+}
+
+ROOT::VecOps::RVec<float>
+get_track_chi2_o_ndf(const ROOT::VecOps::RVec<edm4hep::TrackData>& tracks_in){
+  ROOT::VecOps::RVec<float> chi2_out;
+  for (const auto &track : tracks_in) {
+    chi2_out.push_back(float(track.chi2/track.ndf));
+  }
+  return chi2_out;
+}
+
+
+
+// Base track selection
+ROOT::VecOps::RVec<edm4hep::TrackData>
+select_tracks(const ROOT::VecOps::RVec<edm4hep::TrackData>& tracks_in,
+              const ROOT::VecOps::RVec<edm4hep::TrackState>& trackstates_in,
+              const float d0_upper_bound, 
+              const float z0_upper_bound) {
+
+  ROOT::VecOps::RVec<edm4hep::TrackData> tracks_out;
+
+  for (const auto &track : tracks_in) {
+
+    // track chi2 selection needs to use track object itself 
+    if (track.ndf == 0){
+      continue;
+    }
+    if (track.chi2 / track.ndf > 10.){
+      continue;
+    }
+
+    // now we need to get the track state to check the other variables:
+    // auto trackstate = track.getTrackStates();
+    auto n_trackstates = track.trackStates_end - track.trackStates_begin;
+    // std::cout << n_trackstates << std::endl;
+    // TODO: assertion that it's one? should always be but better confirm ..
+    for (unsigned int track_state_index = track.trackStates_begin; track_state_index < track.trackStates_end; ++track_state_index) {
+
+      const auto& trackstate = trackstates_in[track_state_index];
+
+      // Make sure covariance Matrix is positive definite
+      // Reminder covMatrix convention: https://bib-pubdb1.desy.de/record/81214/files/LC-DET-2006-004%5B1%5D.pdf, sec 5
+      const auto& cov_matrix = trackstate.covMatrix;
+
+      if (cov_matrix[0] <= 1e-12 || cov_matrix[2] <= 1e-12 || cov_matrix[9] <= 1e-12) {
+        continue;
+      }
+      if (!std::isfinite(cov_matrix[0]) || !std::isfinite(cov_matrix[2]) || !std::isfinite(cov_matrix[9])) {
+        continue;
+      }
+      
+      if (std::abs(trackstate.D0)  > d0_upper_bound || std::abs(trackstate.Z0)  > z0_upper_bound){
+        continue;
+      }
+
+
+      // // Now you can access:
+      // state.covMatrix
+      // state.location
+}
+
+
+    // if all passed, track is selected
+    tracks_out.push_back(track);
+
+  }
+  return tracks_out;
+}
+
+
 // --------------------------------------
 // Event primary vertex reconstruction
 // --------------------------------------
 
+// Refit reco primary vertex using FCCAna native vertex fitter
+
+// TODO
+
+
+//Generator level primary vertex based on MC particle info
 struct get_EventPrimaryVertexP4 {
   int m_genstatus = 21; // default generator status for incoming hard subprocess
   get_EventPrimaryVertexP4() {};
@@ -278,6 +379,11 @@ struct get_EventPrimaryVertexP4 {
     return result;
   }
 };
+
+// --------------------------------------
+
+
+
 
 float get_EventType(const ROOT::VecOps::RVec<edm4hep::MCParticleData>& in) {
     float result = -1;
