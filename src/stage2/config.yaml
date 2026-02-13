@@ -3,9 +3,9 @@
 # Jet flavor mapping: maps file patterns to jet flavor labels
 # Example: if filename contains "Zbb" -> creates branch "recojet_isB" with value 1 for that sample
 flavor_mapping:
-  Zuu: recojet_isU
-  Zdd: recojet_isD
-  Zss: recojet_isS
+  Zuu: recojet_isUDS
+  Zdd: recojet_isUDS
+  Zss: recojet_isUDS
   Zcc: recojet_isC
   Zbb: recojet_isB
   Znn: recojet_isN
