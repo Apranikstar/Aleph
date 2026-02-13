@@ -50,7 +50,7 @@ Edit `steering.py`:
 
 ```python
 INPUT_DIR = "/path/to/your/stage1/files/"
-OUTPUT_DIR = "/path/to/output/"  # note that if you use eos it may result it bad writes with high number of threads, so use working dir.
+OUTPUT_DIR = "/path/to/output/"  # note that if you use eos it may result in bad writes with high number of threads, so use working dir.
 N_WORKERS = 64
 ```
 
