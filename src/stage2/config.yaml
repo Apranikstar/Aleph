@@ -40,6 +40,10 @@ pfcand_variables:
   # Basic kinematics
   - pfcand_e
   - pfcand_p
+  - pfcand_px
+  - pfcand_py
+  - pfcand_pz
+  - pfcand_mask
   - pfcand_theta
   - pfcand_phi
   - pfcand_charge
