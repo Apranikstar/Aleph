@@ -1,0 +1,93 @@
+# Configuration for jet flavor tagging pipeline
+
+# Jet flavor mapping: maps file patterns to jet flavor labels
+# Example: if filename contains "Zbb" -> creates branch "recojet_isB" with value 1 for that sample
+flavor_mapping:
+  Zuu: recojet_isU
+  Zdd: recojet_isD
+  Zss: recojet_isS
+  Zcc: recojet_isC
+  Zbb: recojet_isB
+  Znn: recojet_isN
+
+# Jet-level variables (vector of floats per event)
+# Each entry is a list of values, one per jet in the event
+jet_variables:
+  - jet_p
+  - jet_e
+  - jet_mass
+  - jet_phi
+  - jet_theta
+  - jet_nconst
+  - jet_nmu
+  - jet_nel
+  - jet_nchad
+  - jet_ngamma
+  - jet_nnhad
+
+# Particle Flow Candidate (PFCand) level variables
+# Each entry is a list of lists: [[jet1_constituents], [jet2_constituents], ...]
+# NaN/None values will be converted to 0.0
+pfcand_variables:
+  # Kinematic variables
+  - pfcand_erel_log
+  - pfcand_thetarel
+  - pfcand_phirel
+  
+  # Track covariance matrix elements
+  - pfcand_dptdpt
+  - pfcand_detadeta
+  - pfcand_dphidphi
+  - pfcand_dxydxy
+  - pfcand_dzdz
+  - pfcand_dxydz
+  - pfcand_dphidxy
+  - pfcand_dlambdadz
+  - pfcand_dxyc
+  - pfcand_dxyctgtheta
+  - pfcand_phic
+  - pfcand_phidz
+  - pfcand_phictgtheta
+  - pfcand_cdz
+  - pfcand_cctgtheta
+  
+  # Particle identification
+  - pfcand_charge
+  - pfcand_isMu
+  - pfcand_isEl
+  - pfcand_isChargedHad
+  - pfcand_isGamma
+  - pfcand_isNeutralHad
+  - pfcand_type
+  
+  # Impact parameters
+  - pfcand_dxy
+  - pfcand_dz
+  
+  # B-tagging variables
+  - pfcand_btagSip2dVal
+  - pfcand_btagSip2dSig
+  - pfcand_btagSip3dVal
+  - pfcand_btagSip3dSig
+  - pfcand_btagJetDistVal
+  - pfcand_btagJetDistSig
+  
+  # Basic kinematics
+  - pfcand_e
+  - pfcand_p
+  - pfcand_theta
+  - pfcand_phi
+  
+  # dE/dx variables
+  - pfcand_dEdx_pads_type
+  - pfcand_dEdx_pads_value
+  - pfcand_dEdx_pads_error
+  - pfcand_dEdx_wires_type
+  - pfcand_dEdx_wires_value
+  - pfcand_dEdx_wires_error
+
+# Input tree name
+input_tree_name: events
+
+# Output tree name
+output_tree_name: tree
