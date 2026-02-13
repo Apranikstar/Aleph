@@ -35,19 +35,13 @@ Download all these files to your working directory:
 2. **`stage2.py`** - Main processing script
 3. **`run_parallel.py`** - Parallel processing engine
 4. **`steering.py`** - Easy-to-use steering file
-5. **`requirements.txt`** - Python dependencies
-
-### Helper Files (Optional but Recommended)
-6. **`test_single.py`** - Test on small sample
-7. **`check_variables.py`** - Verify variables exist
-8. **`inspect_root.py`** - Inspect ROOT files
 
 ## Quick Start
 
 ### 1. Install Dependencies
 
 ```bash
-pip install -r requirements.txt
+pip install uproot numpy akward
 ```
 
 ### 2. Configure
