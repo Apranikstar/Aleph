@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+#python check_labels.py --input '/eos/user/h/hfatehi/aleph/trainingFiles/aleph-temp2/Z*.root' --sample
 import uproot
 import awkward as ak
 import numpy as np
