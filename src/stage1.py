@@ -172,6 +172,12 @@ class Analysis():
 
         df = df.Define("pfcand_e",        "JetConstituentsUtils::get_e(jetc)") 
         df = df.Define("pfcand_p",        "JetConstituentsUtils::get_p(jetc)") 
+        df = df.Define("pfcand_px",        "AlephSelection::get_px(jetc)")
+        df = df.Define("pfcand_py",        "AlephSelection::get_py(jetc)")
+        df = df.Define("pfcand_pz",        "AlephSelection::get_pz(jetc)")
+        df = df.Define("pfcand_mask",        "AlephSelection::mask(pfcand_e)")
+
+
         df = df.Define("pfcand_theta",    "JetConstituentsUtils::get_theta(jetc)") 
         df = df.Define("pfcand_phi",      "JetConstituentsUtils::get_phi(jetc)") 
         df = df.Define("pfcand_charge",   "JetConstituentsUtils::get_charge(jetc)") 
