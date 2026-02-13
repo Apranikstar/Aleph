@@ -46,6 +46,7 @@ pip install uproot numpy akward
 
 ### 2. Configure
 
+Edit `config.yaml` and make sure all of the variables that you want exists. Also you can change the flavor mapping.
 Edit `steering.py`:
 
 ```python
