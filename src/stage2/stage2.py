@@ -1,4 +1,3 @@
-hfatehi@fcc-ironic-03 /afs/cern.ch/work/h/hfatehi/Aleph/src/stage2 $ cat stage2.py 
 #!/usr/bin/env python3
 """
 Modern stage2 processing script using uproot.
@@ -146,4 +145,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-hfatehi@fcc-ironic-03 /afs/cern.ch/work/h/hfatehi/Aleph/src/stage2 $ 
