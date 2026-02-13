@@ -1,12 +1,4 @@
 # Aleph
 
-Quick guide on how to use the repo:
-
-
-```bash
-git clone https://github.com/Apranikstar/Aleph.git
-cd Aleph/test/v2Test
-source /cvmfs/sw.hsf.org/key4hep/setup.sh -r 2025-05-29 
-fccanalysis run test.py
-```
-Note: Change the data fraction based on your needs.
+Go to `/src/` directory for stage1.
+Go to `/src/stage2` for stage2.
