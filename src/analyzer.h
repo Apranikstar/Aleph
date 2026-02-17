@@ -57,7 +57,6 @@
 #include <typeinfo>
 
 
-
 namespace FCCAnalyses { namespace AlephSelection {
 
 namespace rv = ROOT::VecOps;
@@ -270,15 +269,22 @@ get_track_chi2_o_ndf(const ROOT::VecOps::RVec<edm4hep::TrackData>& tracks_in){
 }
 
 
+// helper for track selection
+
+struct SelectedTracks {
+  ROOT::VecOps::RVec<edm4hep::TrackData>  tracks;
+  ROOT::VecOps::RVec<edm4hep::TrackState> trackStates;
+};
+
 
 // Base track selection
-ROOT::VecOps::RVec<edm4hep::TrackData>
-select_tracks(const ROOT::VecOps::RVec<edm4hep::TrackData>& tracks_in,
-              const ROOT::VecOps::RVec<edm4hep::TrackState>& trackstates_in,
-              const float d0_upper_bound, 
-              const float z0_upper_bound) {
+SelectedTracks
+select_tracks_baseline(const ROOT::VecOps::RVec<edm4hep::TrackData>& tracks_in,
+              const ROOT::VecOps::RVec<edm4hep::TrackState>& trackstates_in) {
+  
+  SelectedTracks selected_tracks_and_states;
 
-  ROOT::VecOps::RVec<edm4hep::TrackData> tracks_out;
+  // ROOT::VecOps::RVec<edm4hep::TrackData> tracks_out;
 
   for (const auto &track : tracks_in) {
 
@@ -291,10 +297,15 @@ select_tracks(const ROOT::VecOps::RVec<edm4hep::TrackData>& tracks_in,
     }
 
     // now we need to get the track state to check the other variables:
-    // auto trackstate = track.getTrackStates();
     auto n_trackstates = track.trackStates_end - track.trackStates_begin;
     // std::cout << n_trackstates << std::endl;
-    // TODO: assertion that it's one? should always be but better confirm ..
+
+    if (n_trackstates != 1) {
+      throw std::runtime_error("Error in track selection: Expected exactly one TrackState per Track");
+    }
+
+    // assert(n_trackstates == 1 && "Error in track selection: Expected exactly one TrackState per Track");
+    
     for (unsigned int track_state_index = track.trackStates_begin; track_state_index < track.trackStates_end; ++track_state_index) {
 
       const auto& trackstate = trackstates_in[track_state_index];
@@ -310,23 +321,40 @@ select_tracks(const ROOT::VecOps::RVec<edm4hep::TrackData>& tracks_in,
         continue;
       }
       
-      if (std::abs(trackstate.D0)  > d0_upper_bound || std::abs(trackstate.Z0)  > z0_upper_bound){
-        continue;
-      }
-
-
-      // // Now you can access:
-      // state.covMatrix
-      // state.location
-}
-
+      selected_tracks_and_states.trackStates.push_back(trackstate);
+    }
 
     // if all passed, track is selected
-    tracks_out.push_back(track);
+    selected_tracks_and_states.tracks.push_back(track);
+    
 
   }
-  return tracks_out;
+  return selected_tracks_and_states;
 }
+
+//for selecting tracks compatible with primary vertex
+SelectedTracks
+select_tracks_impactparameters(const SelectedTracks& input,
+                               float d0_upper_bound,
+                               float z0_upper_bound)
+{
+    SelectedTracks selected;
+
+    for (size_t i = 0; i < input.tracks.size(); ++i) {
+
+        const auto& track = input.tracks[i];
+        const auto& state = input.trackStates[i];
+
+        if (std::abs(state.D0) > d0_upper_bound) continue;
+        if (std::abs(state.Z0) > z0_upper_bound) continue;
+
+        selected.tracks.push_back(track);
+        selected.trackStates.push_back(state);
+    }
+
+    return selected;
+}
+
 
 
 // --------------------------------------
