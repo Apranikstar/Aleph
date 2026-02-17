@@ -171,18 +171,21 @@ class Analysis():
         res_y_loose = 100. # in um
         res_z_loose = 2. # in cm
 
-        df = df.Define("RecoedPrimaryTracks_looseBS", "VertexFitterSimple::get_PrimaryTracks(trackstates_selected_for_vertexfit, true, {},{},{},0.,0.,0.)".format(res_x_loose/10., res_y_loose/10., res_z_loose*1E03)) # 10um as unit (x,y), 1cm as unit (z)
+        chi2max = 5. # the maximum chi2 under which tracks are compatible with vertex fit
+
+        df = df.Define("RecoedPrimaryTracks_looseBS", "VertexFitterSimple::get_PrimaryTracks(trackstates_selected_for_vertexfit, true, {},{},{},0.,0.,0., {})".format(res_x_loose/10., res_y_loose/10., res_z_loose*1E03, chi2max)) # 10um as unit (x,y), 1cm as unit (z)
         df = df.Define("VertexObject_looseBS", "VertexFitterSimple::VertexFitter_Tk(1, RecoedPrimaryTracks_looseBS, true, {},{},{},0.,0.,0.)".format(res_x_loose/10., res_y_loose/10., res_z_loose*1E03)) # 10um as unit (x,y), 1cm as unit (z)
         df = df.Define("Vertex_refit_looseBS", "VertexingUtils::get_VertexData(VertexObject_looseBS)")
         df = df.Define("Vertex_refit_tlv", "TLorentzVector(Vertex_refit_looseBS.position.x, Vertex_refit_looseBS.position.y, Vertex_refit_looseBS.position.z, 0.)")
-        df = df.Define("SecondaryTracks_looseBS", "VertexFitterSimple::get_NonPrimaryTracks(trackstates_selected_for_vertexfit, RecoedPrimaryTracks_looseBS)")
+        # for retrieving secondary tracks, use the full list of selected tracks 
+        df = df.Define("SecondaryTracks_looseBS", "VertexFitterSimple::get_NonPrimaryTracks(trackstates_selected_baseline, RecoedPrimaryTracks_looseBS)")
 
         df = df.Define("Vertex_refit_x", "Vertex_refit_looseBS.position.x")
         df = df.Define("Vertex_refit_y", "Vertex_refit_looseBS.position.y")
         df = df.Define("Vertex_refit_z", "Vertex_refit_looseBS.position.z")
 
-        df = df.Define("n_RecoedPrimaryTracks_looseBS", "ReconstructedParticle2Track::getTK_n(RecoedPrimaryTracks_looseBS)")
-        df = df.Define("n_SecondaryTracks_looseBS", "ReconstructedParticle2Track::getTK_n(SecondaryTracks_looseBS)")
+        df = df.Define("n_primary_tracks", "ReconstructedParticle2Track::getTK_n(RecoedPrimaryTracks_looseBS)")
+        df = df.Define("n_secondary_tracks", "ReconstructedParticle2Track::getTK_n(SecondaryTracks_looseBS)")
 
         # for reference: vertex as stored - can be removed?
         df = df.Define(
@@ -370,8 +373,8 @@ class Analysis():
             "VertexZ",
 
             #refitted vertices
-            "n_RecoedPrimaryTracks_looseBS",
-            "n_SecondaryTracks_looseBS",
+            "n_primary_tracks",
+            "n_secondary_tracks",
             "Vertex_refit_x",
             "Vertex_refit_y",
             "Vertex_refit_z",
