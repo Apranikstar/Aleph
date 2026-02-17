@@ -81,7 +81,7 @@ class Analysis():
             }
 
         #set run options:
-        self.n_threads = 4 
+        self.n_threads = 32 
         self.include_paths = ["analyzer.h"]
 
     def analyzers(self, df):
@@ -138,20 +138,56 @@ class Analysis():
 
 
         # ==== Track selection (to harmonize with Luka's code)
+        # Note: The selection strategy here only works if there is one trackstate stored pre track.
+        # The code includes an assertion for that, if it is somehow not the case it will fail. 
         # df = df.Define("n_tracks_all", f"AlephSelection::select_tracks( {coll['PFTracks']} )")
         df = df.Define("n_tracks_all", "Tracks.size()")
         df = df.Define("chi2_tracks_all","AlephSelection::get_track_chi2( Tracks )") #TODO: use collection here
         df = df.Define("ndf_tracks_all","AlephSelection::get_track_ndf( Tracks )") #TODO: use collection here
         df = df.Define("chi2_o_ndf_tracks_all","AlephSelection::get_track_ndf( Tracks )") #TODO: use collection here
-        df = df.Define("tracks_selected_for_vertexfit","AlephSelection::select_tracks( Tracks, _Tracks_trackStates, 0.75, 2.0 )") #TODO: use collection here
-        df = df.Define("n_tracks_sel", "tracks_selected_for_vertexfit.size()")
+        
+        # baseline track selection: positive definite cov matrix & chi2 < 10 
+        df = df.Define("tracks_selected_baseline_result","AlephSelection::select_tracks_baseline( Tracks, _Tracks_trackStates )") #TODO: use collection here  0.75, 2.0
+        df = df.Define("tracks_selected_baseline","tracks_selected_baseline_result.tracks") 
+        df = df.Define("trackstates_selected_baseline","tracks_selected_baseline_result.trackStates") 
+
+        # impose upper bounds on impact parameters to pre-select compatible tracks for the primary vertex fit 
+        df = df.Define("tracks_selected_for_vertexfit_result","AlephSelection::select_tracks_impactparameters( tracks_selected_baseline_result, 0.75, 2.0 )") 
+        df = df.Define("tracks_selected_for_vertexfit","tracks_selected_for_vertexfit_result.tracks") 
+        df = df.Define("trackstates_selected_for_vertexfit","tracks_selected_for_vertexfit_result.trackStates") 
+
+        df = df.Define("n_tracks_sel", "tracks_selected_baseline.size()")
+        df = df.Define("n_trackstates_sel", "trackstates_selected_baseline.size()") #for debug
+
+        df = df.Define("n_tracks_sel_vertexfit", "tracks_selected_for_vertexfit.size()")
 
         # ===== VERTEX
 
         # run primary vertex fit using FCCAna native fitter 
+        # IMPORTANT: only for simulation rn, to add data input values TODO !!!
 
+        # Luka's loose BS constraints from looking at data 
+        res_x_loose = 200. # in um
+        res_y_loose = 100. # in um
+        res_z_loose = 2. # in cm
 
-        # read the vertex as stored in the files
+        chi2max = 5. # the maximum chi2 under which tracks are compatible with vertex fit
+
+        df = df.Define("RecoedPrimaryTracks_looseBS", "VertexFitterSimple::get_PrimaryTracks(trackstates_selected_for_vertexfit, true, {},{},{},0.,0.,0., {})".format(res_x_loose/10., res_y_loose/10., res_z_loose*1E03, chi2max)) # 10um as unit (x,y), 1cm as unit (z)
+        df = df.Define("VertexObject_looseBS", "VertexFitterSimple::VertexFitter_Tk(1, RecoedPrimaryTracks_looseBS, true, {},{},{},0.,0.,0.)".format(res_x_loose/10., res_y_loose/10., res_z_loose*1E03)) # 10um as unit (x,y), 1cm as unit (z)
+        df = df.Define("Vertex_refit_looseBS", "VertexingUtils::get_VertexData(VertexObject_looseBS)")
+        df = df.Define("Vertex_refit_tlv", "TLorentzVector(Vertex_refit_looseBS.position.x, Vertex_refit_looseBS.position.y, Vertex_refit_looseBS.position.z, 0.)")
+        # for retrieving secondary tracks, use the full list of selected tracks 
+        df = df.Define("SecondaryTracks_looseBS", "VertexFitterSimple::get_NonPrimaryTracks(trackstates_selected_baseline, RecoedPrimaryTracks_looseBS)")
+
+        df = df.Define("Vertex_refit_x", "Vertex_refit_looseBS.position.x")
+        df = df.Define("Vertex_refit_y", "Vertex_refit_looseBS.position.y")
+        df = df.Define("Vertex_refit_z", "Vertex_refit_looseBS.position.z")
+
+        df = df.Define("n_primary_tracks", "ReconstructedParticle2Track::getTK_n(RecoedPrimaryTracks_looseBS)")
+        df = df.Define("n_secondary_tracks", "ReconstructedParticle2Track::getTK_n(SecondaryTracks_looseBS)")
+
+        # for reference: vertex as stored - can be removed?
         df = df.Define(
             "pv",
             "TLorentzVector(Vertices[0].position.x, Vertices[0].position.y, Vertices[0].position.z, 0.0)",
@@ -187,16 +223,15 @@ class Analysis():
         df = df.Define("pfcand_thetarel", "JetConstituentsUtils::get_thetarel_cluster(jets, jetc)")
         df = df.Define("pfcand_phirel",   "JetConstituentsUtils::get_phirel_cluster(jets, jetc)")
 
-        df = df.Define("Bz", '1.5')
-
+        df = df.Define("Bz", '1.5') # luka reads this from the event ? 
 
         ############################################# Track Parameters and Covariance #######################################################
 
         df = df.Define("TrackStateFlipped",f"AlephSelection::flipD0_copy( {coll['TrackState']} )")
 
-        df = df.Define("pfcand_dxy",        f'JetConstituentsUtils::XPtoPar_dxy(jetc, TrackStateFlipped, pv, Bz)') 
-        df = df.Define("pfcand_dz",         f'JetConstituentsUtils::XPtoPar_dz(jetc, TrackStateFlipped, pv, Bz)') 
-        df = df.Define("pfcand_phi0",       f'JetConstituentsUtils::XPtoPar_phi(jetc, TrackStateFlipped, pv, Bz)') 
+        df = df.Define("pfcand_dxy",        f'JetConstituentsUtils::XPtoPar_dxy(jetc, TrackStateFlipped, Vertex_refit_tlv, Bz)') 
+        df = df.Define("pfcand_dz",         f'JetConstituentsUtils::XPtoPar_dz(jetc, TrackStateFlipped, Vertex_refit_tlv, Bz)') 
+        df = df.Define("pfcand_phi0",       f'JetConstituentsUtils::XPtoPar_phi(jetc, TrackStateFlipped, Vertex_refit_tlv, Bz)') 
         df = df.Define("pfcand_C",          f'JetConstituentsUtils::XPtoPar_C(jetc, TrackStateFlipped, Bz)') 
         df = df.Define("pfcand_ct",         f'JetConstituentsUtils::XPtoPar_ct(jetc, TrackStateFlipped, Bz)') 
         df = df.Define("pfcand_dptdpt",     f'JetConstituentsUtils::get_omega_cov(jetc, TrackStateFlipped)') 
@@ -204,7 +239,7 @@ class Analysis():
         df = df.Define("pfcand_dzdz",       f'JetConstituentsUtils::get_z0_cov(jetc, TrackStateFlipped)') 
         df = df.Define("pfcand_dphidphi",   f'JetConstituentsUtils::get_phi0_cov(jetc, TrackStateFlipped)') 
         df = df.Define("pfcand_detadeta",   f'JetConstituentsUtils::get_tanlambda_cov(jetc, TrackStateFlipped)') 
-        df = df.Define("pfcand_dxydz",      f'JetConstituentsUtils::get_d0_z0_cov(jetc, TrackStateFlipped)') 
+        df = df.Define("pfcand_dxydz",      f'JetConstituentsUtils::get_d0_z0_cov(jetc, TrackStateFlipped)') # do we not need to recalculate this? 
         df = df.Define("pfcand_dphidxy",    f'JetConstituentsUtils::get_phi0_d0_cov(jetc, TrackStateFlipped)') 
         df = df.Define("pfcand_phidz",      f'JetConstituentsUtils::get_phi0_z0_cov(jetc, TrackStateFlipped)') 
         df = df.Define("pfcand_phictgtheta",f'JetConstituentsUtils::get_tanlambda_phi0_cov(jetc, TrackStateFlipped)') 
@@ -337,9 +372,18 @@ class Analysis():
             "VertexY", 
             "VertexZ",
 
+            #refitted vertices
+            "n_primary_tracks",
+            "n_secondary_tracks",
+            "Vertex_refit_x",
+            "Vertex_refit_y",
+            "Vertex_refit_z",
+
             # Track variables
             "n_tracks_all",
             "n_tracks_sel",
+            "n_trackstates_sel",
+            "n_tracks_sel_vertexfit",
             "chi2_tracks_all",
             "ndf_tracks_all",
             "chi2_o_ndf_tracks_all",
