@@ -72,23 +72,37 @@ class Analysis():
             self.output_dir_eos = f"/eos/experiment/fcc/ee/analyses/case-studies/aleph/processedData/{self.ana_args.year}/stage1/{self.ana_args.tag}"
             self.output_dir = "."
             
-            self.process_list = {
-                "1994" : {"fraction" : self.ana_args.fraction},           
-            }  
+            if self.ana_args.batch:
+                self.output_dir = "./data/"
+                if self.ana_args.chunks:
+                    self.process_list = {
+                        "1994" : {"fraction" : self.ana_args.fraction, "chunks":self.ana_args.chunks},           
+                    }
+                else:
+                    self.process_list = {
+                        "1994" : {"fraction" : self.ana_args.fraction},           
+                    }
+
+                self.n_threads = 8 
+
+            else:
+                self.process_list = {
+                    "1994" : {"fraction" : self.ana_args.fraction},           
+                }
+
+                self.n_threads = 32 
 
         else:
             self.input_dir = f"/eos/experiment/aleph/EDM4HEP/MC/{self.ana_args.year}/"
-            self.output_dir = f"/eos/experiment/fcc/ee/analyses/case-studies/aleph/processedMC/{self.ana_args.year}/{self.ana_args.MCtype}/stage1/{self.ana_args.tag}"
             # self.output_dir = "."
 
             #set the output file name depending on resonance flavour 
             output_name = outnames_dict[self.ana_args.MCtype][self.ana_args.MCflavour]
 
-            # for now run only one tester file when running locally:
             if self.ana_args.batch:
 
-                self.output_dir_eos = f"/eos/experiment/fcc/ee/analyses/case-studies/aleph/processedMC/{self.ana_args.year}/{self.ana_args.MCtype}/stage1/{self.ana_args.tag}"
-                self.output_dir = output_name
+                self.output_dir_eos = f"/eos/experiment/fcc/ee/analyses/case-studies/aleph/processedMC/{self.ana_args.year}/{self.ana_args.MCtype}/stage1/{self.ana_args.tag}/{output_name}/"
+                self.output_dir = f"./{output_name}/"
                 
                 #split in chunks or not (if works well should make this default)
                 if self.ana_args.chunks:
@@ -103,6 +117,8 @@ class Analysis():
                 self.n_threads = 8
             
             else:
+                self.output_dir = f"/eos/experiment/fcc/ee/analyses/case-studies/aleph/processedMC/{self.ana_args.year}/{self.ana_args.MCtype}/stage1/{self.ana_args.tag}"
+
                 #local tester for validation
                 if self.ana_args.valid:
 
@@ -221,7 +237,7 @@ class Analysis():
         res_y_loose = 100. # in um
         res_z_loose = 2. # in cm
 
-        chi2max = 25. # the maximum chi2 under which tracks are compatible with vertex fit 
+        chi2max = 5. # the maximum chi2 under which tracks are compatible with vertex fit 
 
         df = df.Define("RecoedPrimaryTracks_looseBS", "VertexFitterSimple::get_PrimaryTracks(trackstates_selected_for_vertexfit_flipped, true, {},{},{},0.,0.,0., {})".format(res_x_loose/10., res_y_loose/10., res_z_loose*1E03, chi2max)) # 10um as unit (x,y), 1cm as unit (z)
         df = df.Define("VertexObject_looseBS", "VertexFitterSimple::VertexFitter_Tk(1, RecoedPrimaryTracks_looseBS, true, {},{},{},0.,0.,0.)".format(res_x_loose/10., res_y_loose/10., res_z_loose*1E03)) # 10um as unit (x,y), 1cm as unit (z)
@@ -260,16 +276,27 @@ class Analysis():
         df = df.Filter("Vertices.size() > 0")  # to remove eventually
 
 
-        # gen level vertex for checks: 
-        df = df.Define("pv_gen_level", f'AlephSelection::get_EventPrimaryVertexP4()({coll["GenParticles"]})')
-        df = df.Define("gen_vertex_x", "pv_gen_level.X()")
-        df = df.Define("gen_vertex_y", "pv_gen_level.Y()")
-        df = df.Define("gen_vertex_z", "pv_gen_level.Z()")
+        # gen level vertex for checks, fill dummies for data
+        if self.ana_args.doData:
+            df = df.Define("gen_vertex_x", "-999")
+            df = df.Define("gen_vertex_y", "-999")
+            df = df.Define("gen_vertex_z", "-999")
 
-        # refit vertex resolution:
-        df = df.Define("res_vertex_x", "Vertex_refit_x - gen_vertex_x")
-        df = df.Define("res_vertex_y", "Vertex_refit_y - gen_vertex_y")
-        df = df.Define("res_vertex_z", "Vertex_refit_z - gen_vertex_z")
+            # refit vertex resolution:
+            df = df.Define("res_vertex_x", "-999")
+            df = df.Define("res_vertex_y", "-999")
+            df = df.Define("res_vertex_z", "-999")
+        
+        else:
+            df = df.Define("pv_gen_level", f'AlephSelection::get_EventPrimaryVertexP4()({coll["GenParticles"]})')
+            df = df.Define("gen_vertex_x", "pv_gen_level.X()")
+            df = df.Define("gen_vertex_y", "pv_gen_level.Y()")
+            df = df.Define("gen_vertex_z", "pv_gen_level.Z()")
+
+            # refit vertex resolution:
+            df = df.Define("res_vertex_x", "Vertex_refit_x - gen_vertex_x")
+            df = df.Define("res_vertex_y", "Vertex_refit_y - gen_vertex_y")
+            df = df.Define("res_vertex_z", "Vertex_refit_z - gen_vertex_z")
 
         # check without track selection
         # df = df.Define("res_vertex_x_all_tracks", "Vertex_refit_x_all_tracks - gen_vertex_x")
