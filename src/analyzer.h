@@ -721,12 +721,12 @@ flipD0_copy(const ROOT::VecOps::RVec<edm4hep::TrackState>& tracks) {
     // indices to flip 1, 4, 6, 8, 10, 12
     // taken from https://github.com/HEP-FCC/FCCAnalyses/blob/6cccde454007e0ada68a162cc3450ad90c6f65bf/analyzers/dataframe/src/ReconstructedParticle2Track.cc
 
-    // tt.covMatrix[1]  = -tt.covMatrix[1];   // cov(D0, phi)
-    // tt.covMatrix[4]  = -tt.covMatrix[4];   // cov(phi, omega)
-    // tt.covMatrix[6]  = -tt.covMatrix[6];   // cov(D0, z0)
-    // tt.covMatrix[8]  = -tt.covMatrix[8];   // cov(omega, z0)
-    // tt.covMatrix[10] = -tt.covMatrix[10]; // cov(D0, tanLambda)
-    // tt.covMatrix[12] = -tt.covMatrix[12]; // cov(omega, tanLambda)
+    tt.covMatrix[1]  = -tt.covMatrix[1];   // cov(D0, phi)
+    tt.covMatrix[4]  = -tt.covMatrix[4];   // cov(phi, omega)
+    tt.covMatrix[6]  = -tt.covMatrix[6];   // cov(D0, z0)
+    tt.covMatrix[8]  = -tt.covMatrix[8];   // cov(omega, z0)
+    tt.covMatrix[10] = -tt.covMatrix[10]; // cov(D0, tanLambda)
+    tt.covMatrix[12] = -tt.covMatrix[12]; // cov(omega, tanLambda)
 
     out.push_back(std::move(tt));
   }
