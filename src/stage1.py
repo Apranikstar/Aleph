@@ -521,6 +521,7 @@ class Analysis():
             "jet_phi", 
             "jet_theta", 
             "jet_pT",
+            "jet_eta",
             "jet_p_leading",
             "jet_e_leading",
             "jet_mass_leading",
