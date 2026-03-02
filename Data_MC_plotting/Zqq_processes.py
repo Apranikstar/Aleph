@@ -24,6 +24,10 @@ MC_group_light_jets ={
 ########################################### DATA ########################################### 
 
 zqq_data = {
+	"data":processSpecs(sample_list=["1994"], colour_key=ROOT.kBlack, title="data" ),
+}
+
+zqq_data_stage2 = {
 	"data":processSpecs(sample_list=["Znn"], colour_key=ROOT.kBlack, title="data" ),
 }
 
