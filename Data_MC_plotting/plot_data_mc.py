@@ -10,6 +10,7 @@ import numpy
 from argparse import ArgumentParser
 import importlib
 import json
+import glob
 
 # from plotting_config_stage1 import PlottingConfig
 from plotting_config_inference import PlottingConfig
@@ -17,6 +18,53 @@ from plotting_config_inference import PlottingConfig
 ROOT.gROOT.SetBatch()
 ROOT.gStyle.SetOptTitle(0)
 ROOT.gStyle.SetOptStat(0)
+
+#Helper inline C++ for the RDF plotting
+
+ROOT.gInterpreter.Declare("""
+ROOT::RVec<double> filterByFlag(const ROOT::RVec<double>& values, const ROOT::RVec<int>& flags) {
+   ROOT::RVec<size_t> idx;
+   for(size_t i = 0; i < flags.size(); i++) {
+      if(flags[i] == 1) idx.push_back(i);
+   }
+   return ROOT::VecOps::Take(values, idx);
+}
+
+double filterByFlagLead(const ROOT::RVec<double>& values, const ROOT::RVec<int>& flags) {
+   ROOT::RVec<size_t> idx;
+   for(size_t i = 0; i < flags.size(); i++) {
+      if(flags[i] == 1) idx.push_back(i);
+   }
+   return idx.size() > 0 ? values[idx[0]] : -999.;
+}
+""")
+
+
+# helper function to apply selection on jet constituent level
+ROOT.gInterpreter.Declare("""
+    ROOT::RVec<double> maskPAndDedx(const ROOT::RVec<double>& values, 
+                                    const ROOT::RVec<double>& p, 
+                                    const ROOT::RVec<double>& dedx,
+                                    double p_min=0., double dedx_min = 0., double dedx_max=0., double default_val=-9.) {
+       ROOT::RVec<double> result = values;
+       
+       if (p_min == 0. && dedx_min && dedx_max == 0.){
+          return result;
+       }
+
+       for(size_t i = 0; i < p.size(); i++) {
+          if(p[i] <= p_min || dedx[i] <= dedx_min ||  dedx[i] >= dedx_max  ) {
+             result[i] = default_val;
+          }
+       }
+       return result;
+    }
+    """)
+
+# helper function to select jet constituents passing some momentum and dedx cuts:
+# def mask_branches_jet_constituents(branches_to_mask, p_min, dedx_max ):
+#     for branch
+
 
 def addOverflowToLastBin(hist):
     # print("Adding overflow to last bin for histogram:", hist.GetName())
@@ -30,11 +78,13 @@ def addOverflowToLastBin(hist):
 
 
 
-def is_valid_rdf(input_filepath, tree_name="events", do_chunks=False):
+def is_valid_rdf(input_filepath, tree_name="events"):
 
-    #check if all chunks are ok
-    if do_chunks:
-        files = glob.glob(os.path.join(input_filepath, "chunk*"))
+    # Check if input is a directory and if yes, if all chunks are ok
+    if os.path.isdir(input_filepath):
+        files = glob.glob(os.path.join(input_filepath, "chunk*.root")) #allow for a top level dir above chunks, thanks to FCCAna production complication
+        
+        # files = glob.glob(os.path.join(input_filepath, "chunk*.root"))
         if not files:
             print(f"No files found in {input_filepath}. Skipping.")
             return False
@@ -47,9 +97,9 @@ def is_valid_rdf(input_filepath, tree_name="events", do_chunks=False):
             if not tf.Get(tree_name):
                 print(f"Tree '{tree_name}' not found in file {f}. Skipping.")
                 continue
-    
+    # Handle the case where the path is a single file
     else:
-        if not os.path.exists(input_filepath):
+        if not os.path.isfile(input_filepath):
             print("Filepath ", input_filepath, "not found")
             return False 
 
@@ -65,54 +115,120 @@ def is_valid_rdf(input_filepath, tree_name="events", do_chunks=False):
     
     return True
 
-def get_rdf(input_filepath):
+def get_rdf(input_filepath, tree_name="events"):
 
-    # print("Getting rdf from:", input_filepath)
     rdf = None
-    if input_filepath.endswith(".root"):
-        
-        if not is_valid_rdf(input_filepath):
-            print("Process ", input_filepath, " is empty. Skipping.")
+
+    # Detect if a single ROOT file (<input>.root) exists.
+    # If yes, use that; otherwise, assume the input is a directory with chunks.
+
+    # Check if a single ROOT file exists
+    single_file = input_filepath + ".root"
+
+    if os.path.isfile(single_file):
+        print(f"Detected single ROOT file: {single_file}")
+
+        if not is_valid_rdf(single_file, tree_name):
+            print("Process ", single_file, " is empty. Skipping.")
             return None
         
-        rdf = ROOT.RDataFrame("events", input_filepath)
+        rdf = ROOT.RDataFrame(tree_name, single_file)
 
-        #catching exception DOES NOT WORK
-        # try:
-        #     rdf = ROOT.RDataFrame("events", input_filepath)
-        # except:
-        #     print("File {} appears to be empty.".format(input_filepath))
-        #     return
+    # assume dir with chunks otherwise
     else:
-        if not is_valid_rdf(input_filepath):
-            print("Process ", input_filepath, " is empty. Skipping.")
+        print(f"Assuming directory with chunk files: {input_filepath}")
+
+        if not is_valid_rdf(input_filepath, tree_name):
+            print("Process ", input_filepath, " is empty or broken. Skipping.")
             return None
 
-        rdf = ROOT.RDataFrame("events", input_filepath+"/chunk*")
+        # rdf = ROOT.RDataFrame("events", input_filepath+"/*/chunk*") #allow for top level dir.
 
-    if not rdf:
-        print("Empty file for:", input_filepath, " Skipping.")
-        return None
+        # Get list of chunks allowing for inconvenient FCCAna extra top level dir
+        chunk_files = glob.glob(input_filepath + "/chunk*.root")
+        if not chunk_files:
+            raise FileNotFoundError(f"No chunk files found under {input_filepath}")
+
+        print(f"Found {len(chunk_files)} chunk files")
+        rdf = ROOT.RDataFrame(tree_name, chunk_files)  # Pass the list directly
+
+        # check rdf from chunks is ok
+        if not rdf:
+            print("Empty file for:", input_filepath, " Skipping.")
+            return None
 
     # print(rdf.GetColumnNames())
 
     return rdf
 
 def get_param_value_from_file(param_name, filepath):
-    param_value = 1.
+    # Extract the the parameter requested either from single file or chunks case 
 
-    inputfile = ROOT.TFile.Open(filepath, "READ")
-    if not inputfile or inputfile.IsZombie():
-        print(f"File {filepath} is not a valid ROOT file. Cannot read paramValue for normalisation. Skipping.")
-        return param_value 
-    
-    if not inputfile.GetListOfKeys().Contains(param_name):
-        raise KeyError(f"TParameter '{param_name}' not found in file '{filepath}'")
-    
-    param_value = inputfile.Get(param_name).GetVal()
+    param_value = 1.0  # default fallback
+    single_file = filepath + ".root"
 
-    inputfile.Close()
+    # Case 1: single ROOT file
+    if os.path.isfile(single_file):
+        resolved_path = single_file
+        print(f"Detected single ROOT file: {resolved_path}")
+
+        inputfile = ROOT.TFile.Open(resolved_path, "READ")
+        if not inputfile or inputfile.IsZombie():
+            print(f"File {resolved_path} is not a valid ROOT file. Cannot read '{param_name}'.")
+            return param_value
+
+        if not inputfile.GetListOfKeys().Contains(param_name):
+            raise KeyError(f"TParameter '{param_name}' not found in file '{resolved_path}'")
+
+        param_value = inputfile.Get(param_name).GetVal()
+        inputfile.Close()
+
+    # Case 2: directory → handle chunk files
+    else:
+        print(f"Detected directory with chunks: {filepath}")
+
+        
+        chunk_files = glob.glob(os.path.join(filepath, "chunk*.root"))
+        if not chunk_files:
+            raise FileNotFoundError(f"No chunk ROOT files found in directory: {filepath}")
+
+        param_total = 0.0
+        for chunk in chunk_files:
+            f = ROOT.TFile.Open(chunk, "READ")
+            if not f or f.IsZombie():
+                print(f"Warning: Skipping invalid chunk file {chunk}")
+                continue
+
+            if not f.GetListOfKeys().Contains(param_name):
+                print(f"Warning: TParameter '{param_name}' not found in {chunk}, skipping.")
+                f.Close()
+                continue
+
+            val = f.Get(param_name).GetVal()
+            param_total += val
+            f.Close()
+
+        param_value = param_total
+        print(f"Summed '{param_name}' from {len(chunk_files)} chunks: {param_value}")
+
     return param_value
+
+
+# def get_param_value_from_file(param_name, filepath):
+#     param_value = 1.
+
+#     inputfile = ROOT.TFile.Open(filepath, "READ")
+#     if not inputfile or inputfile.IsZombie():
+#         print(f"File {filepath} is not a valid ROOT file. Cannot read paramValue for normalisation. Skipping.")
+#         return param_value 
+    
+#     if not inputfile.GetListOfKeys().Contains(param_name):
+#         raise KeyError(f"TParameter '{param_name}' not found in file '{filepath}'")
+    
+#     param_value = inputfile.Get(param_name).GetVal()
+
+#     inputfile.Close()
+#     return param_value
 
 def get_norm_factor(sample, filepath, norm_file, weighted=False, lumi=1., print_debug=False):
 
@@ -152,14 +268,21 @@ def get_norm_factor(sample, filepath, norm_file, weighted=False, lumi=1., print_
     return norm_factor
 
 
-def get_hist_from_tree(proc_name, input_filepath, hist_var, hist_nbins, hist_xmin, hist_xmax, norm_file=None,
-                       lumi=1., is_data= False, add_overflow=False, weighted=False):
+def get_hist_from_tree(proc_name, input_filepath, plot_specs, norm_file=None,
+                       lumi=1., is_data= False, add_overflow=False, weighted=False, tree_name="events",
+                       selection=None, branches_to_mask=None):
 
     if is_data and weighted:
         raise Exception("Incompatible options in get_hist_from_tree() : is_data and weighted (MC weights) both true.")
     
     if not norm_file and not is_data:
         raise Exception("Error in get_hist_from_tree() on MC: no json file with normalisation info provided!")
+
+    #pass the full plot_specs and then break down
+    hist_var = plot_specs.name
+    hist_xmin = plot_specs.xmin
+    hist_xmax = plot_specs.xmax
+    hist_nbins = plot_specs.nbins
 
     #going to need a TH1Model to fill:
     has_variable_binning = False
@@ -174,7 +297,21 @@ def get_hist_from_tree(proc_name, input_filepath, hist_var, hist_nbins, hist_xmi
         hist_model = ROOT.RDF.TH1DModel(f"hist_{proc_name}_{hist_var}", f"hist_{proc_name}_{hist_var}", hist_nbins, hist_xmin, hist_xmax)
 
     # get the dataframe and fill the histogram model
-    rdf = get_rdf(input_filepath)
+    rdf = get_rdf(input_filepath, tree_name)
+
+    # mask branches for jet constituent selection if requested:
+    if selection and branches_to_mask:
+        for branch in branches_to_mask:
+            new_branch_names = (f"{branch}_jet1_masked", f"{branch}_jet2_masked")
+            print(f"Going to mask branch {branch} for jet one and jet two with names {new_branch_names[0]}, {new_branch_names[1]}")
+            rdf = rdf.Define(new_branch_names[0], f"maskPAndDedx({branch}[0], pfcand_p[0], pfcand_dEdx_wires_value[0], {selection.p_min}, {selection.dedx_min}, {selection.dedx_max}, -9.)")
+            rdf = rdf.Define(new_branch_names[1], f"maskPAndDedx({branch}[1], pfcand_p[1], pfcand_dEdx_wires_value[1], {selection.p_min}, {selection.dedx_min}, {selection.dedx_max}, -9.)")
+
+    #if needed, define a new column so we can plot it:
+    if plot_specs.redefine:
+        print(f"Defining new column for requested variable {plot_specs.name} as {plot_specs.redefine}")
+        rdf = rdf.Define(f"{plot_specs.name}", f"{plot_specs.redefine}")
+
 
     tmp_hist = rdf.Histo1D(hist_model, hist_var).GetValue() # DO NOT USE WEIGHTS
 
@@ -193,10 +330,11 @@ def get_hist_from_tree(proc_name, input_filepath, hist_var, hist_nbins, hist_xmi
     return hist_to_add
 
 # function to draw all the things #todo: add back support for applying extra cut?
-def make_plot(plot_name, plot, input_dir, data_proc, mc_processes, out_dir_base, 
+def make_plot(plot_name, plot, input_dir_data, input_dir_mc, data_proc, mc_processes, out_dir_base, 
               year="", sel_tag ="", lumi=1., ecm=1., norm_file=None,
               do_log_y=True, add_overflow=False, fix_ratio_range=(), weighted=False,
-              out_format = ".png", store_root_file=False,   
+              out_format = ".png", store_root_file=False, tree_name="events", 
+              selection=None, branches_to_mask=None, 
               ):
 
     print("Plotting", plot.name)
@@ -207,10 +345,10 @@ def make_plot(plot_name, plot, input_dir, data_proc, mc_processes, out_dir_base,
     #get data histogram
     data_hist = None
     for data_file in data_proc.sample_list:
-        data_filepath = os.path.join(input_dir, f"{data_file}.root")
+        data_filepath = os.path.join(input_dir_data, f"{data_file}")
         print(f"Looking for data file: {data_file} in {data_filepath}")
-        data_tmp_hist = get_hist_from_tree(data_file, data_filepath, plot.name, plot.nbins, plot.xmin, plot.xmax, 
-                                           is_data= True, add_overflow=add_overflow) #dont need a norm file, nor weights for data
+        data_tmp_hist = get_hist_from_tree(data_file, data_filepath, plot, 
+                                           is_data= True, add_overflow=add_overflow, tree_name=tree_name, selection=selection, branches_to_mask=branches_to_mask) #dont need a norm file, nor weights for data
 
         #skip if nothing passes selection:
         if not data_tmp_hist.GetEntries():
@@ -236,11 +374,11 @@ def make_plot(plot_name, plot, input_dir, data_proc, mc_processes, out_dir_base,
         #loop over files in our mc process and get each histogram, then add them together
         mc_proc_hist = None
         for sample in mc_processes[proc].sample_list:
-            filepath = os.path.join(input_dir, f"{sample}.root")
+            filepath = os.path.join(input_dir_mc, f"{sample}")
             print(f"Looking for MC sample: {sample} in {filepath}")
             
-            tmp_hist = get_hist_from_tree(sample, filepath, plot.name, plot.nbins, plot.xmin, plot.xmax, norm_file=norm_file,
-                                          lumi=lumi, is_data= False, add_overflow=add_overflow, weighted=weighted)
+            tmp_hist = get_hist_from_tree(sample, filepath, plot, norm_file=norm_file,
+                                          lumi=lumi, is_data= False, add_overflow=add_overflow, weighted=weighted, tree_name=tree_name, selection=selection, branches_to_mask=branches_to_mask)
 
             #skip if nothing passes selection:
             if not tmp_hist.GetEntries():
@@ -317,6 +455,9 @@ def make_plot(plot_name, plot, input_dir, data_proc, mc_processes, out_dir_base,
     Text.DrawLatex(0.17, 0.9, lumi_tag)
     ana_tag = "#bf{{ {} , {} }}".format(year, sel_tag)
     Text.DrawLatex(0.17, 0.85, ana_tag)
+    if selection:
+        const_sel_tag = "#bf{{ {} }}".format(selection.label)
+        Text.DrawLatex(0.17, 0.80, const_sel_tag)
 
     #legend
     legsize = 0.05*((len(mc_hists_list)+1)/2)
@@ -420,12 +561,18 @@ if __name__ == "__main__":
 
     PlottingConfig = config_module.PlottingConfig
 
+    #enable multithreading if requested in config:
+    if PlottingConfig.n_threads:
+        print(f"Enabling Multithreading in RDF with {PlottingConfig.n_threads} cores")
+        ROOT.EnableImplicitMT(PlottingConfig.n_threads)
+
     # loop over all plots : check the config imported for details
     for plot_name, plot_specs in PlottingConfig.plots_dict.items():
-        make_plot(plot_name, plot_specs, PlottingConfig.inputs_path, PlottingConfig.data, PlottingConfig.mc_processes, PlottingConfig.outputs_path, 
+        make_plot(plot_name, plot_specs, PlottingConfig.inputs_path_data, PlottingConfig.inputs_path_mc, PlottingConfig.data, PlottingConfig.mc_processes, PlottingConfig.outputs_path, 
               year=PlottingConfig.year, sel_tag =PlottingConfig.sel_tag, lumi=PlottingConfig.lumi, ecm=PlottingConfig.ecm, norm_file=PlottingConfig.norm_file,
               do_log_y=PlottingConfig.do_log_y, add_overflow=PlottingConfig.add_overflow, fix_ratio_range=PlottingConfig.ratio_range, 
-              weighted=PlottingConfig.weighted, out_format=PlottingConfig.out_format, store_root_file=PlottingConfig.store_root_file
+              weighted=PlottingConfig.weighted, out_format=PlottingConfig.out_format, store_root_file=PlottingConfig.store_root_file,
+              tree_name=PlottingConfig.tree_name, selection=PlottingConfig.selection, branches_to_mask=PlottingConfig.branches_to_mask,
            )
     
 

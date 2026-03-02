@@ -38,6 +38,13 @@ The following variables are set in the config files:
 - `sel_tag`: A string that specifies the analysis or selection level of events, will be added as label on the plots.
 - `lumi` : The luminosity to normalise MC to,  will be added as label on the plots.
 - `ecm` : The center of mass energy,  will be added as label on the plots.
+- `norm_file` : This is a `.json` file which contains the normalisation info for each process, so cross-section, k-factor, matching efficiency. Follows the same standard as used by the `EventProducer` and `FCCAnalyses` approach. Note that the values for `numberOfEvents` and `sumOfWeights` are placeholders, since these will be read from the input ntuples, as they are recalculated during each production to account for failed jobs or otherwise missing files. 
+- `do_log_y` : Whether to set the y-axis to logarithmic.
+- `add_overflow` : If true, the histogram overflow is added to the last bin.
+- `ratio_range` : The y-axis range for the data/MC ratio panel. 
+- `weighted` : Whether to use event weights or not.
+- `out_format` : The output format in which to store the plots.
+- `store_root_file` : If a ROOT file of the plotted histograms is written into the `outputs_path` that can be used by e.g. combine for fitting. 
 
 
 ### PlotSpecs config
