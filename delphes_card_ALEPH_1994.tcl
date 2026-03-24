@@ -73,9 +73,6 @@
 #
 # ----------------------------------------------------------------
 # Notes:
-#   - No pileup (LEP1 event rate ~ 1 Hz at the Z peak)
-#   - Full TrackCovariance geometry (VDET + ITC + TPC) replacing
-#     simple MomentumSmearing, following the IDEA card approach [R8]
 #   - LCAL/SICAL forward calorimeter modeled simply in HCAL
 #   - EFlow implemented via Delphes EFlowMerger               [R6]
 #   - Muon momentum from tracker only (not standalone muon system)
